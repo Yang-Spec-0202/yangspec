@@ -221,6 +221,18 @@
       node("span", "cost-currency", "USD · your quotes"),
     );
     costs.append(costHeader);
+    if (!current.complete) {
+      const coverage = node("p", "cost-coverage");
+      coverage.append(
+        node("strong", "", "Total monthly cost unknown"),
+        node(
+          "span",
+          "",
+          `${current.unknown.length} prices still missing. Add them to calculate the total.`,
+        ),
+      );
+      costs.append(coverage);
+    }
     const total = node(
       "p",
       "cost-total",
@@ -229,7 +241,7 @@
     total.classList.toggle("is-long", total.textContent.length > 16);
     if (current.subtotal != null)
       total.append(
-        node("span", "", current.complete ? "/ month" : "known subtotal"),
+        node("span", "", current.complete ? "/ month" : "partial / month"),
       );
     costs.append(total);
     const priced = current.lines.length - current.unknown.length;
@@ -240,6 +252,18 @@
     );
     progress.classList.toggle("is-complete", current.complete);
     costs.append(progress);
+    if (!current.complete && priced > 0) {
+      costs.append(
+        node(
+          "p",
+          "cost-included",
+          `Counted in this amount: ${current.lines
+            .filter((line) => line.cost != null)
+            .map((line) => line.label)
+            .join(", ")}.`,
+        ),
+      );
+    }
     const list = node("dl", "cost-lines");
     current.lines.forEach((line) => {
       const row = node("div", "");
@@ -248,7 +272,7 @@
         node(
           "dd",
           line.cost == null ? "unquoted" : "",
-          line.cost == null ? "Not quoted" : money(line.cost),
+          line.cost == null ? "Price missing" : money(line.cost),
         ),
       );
       list.append(row);
@@ -303,7 +327,7 @@
     result.append(why);
     summary.textContent = `${current.ramGb} GB · ${current.cpu} cores · ${model.storage(current.primaryGb)}`;
     announce(
-      `Plan updated for ${current.picked.length} app${current.picked.length === 1 ? "" : "s"}: ${summary.textContent}. ${current.oversized ? "Custom sizing needed." : ""} ${current.subtotal == null ? "Monthly costs not quoted." : `${current.complete ? "Monthly total" : "Known monthly subtotal"} ${money(current.subtotal)}.`}`,
+      `Plan updated for ${current.picked.length} app${current.picked.length === 1 ? "" : "s"}: ${summary.textContent}. ${current.oversized ? "Custom sizing needed." : ""} ${current.subtotal == null ? "Monthly costs not quoted." : `${current.complete ? "Monthly total" : "Partial monthly cost"} ${money(current.subtotal)}.`} ${current.complete ? "" : `Total monthly cost unknown; ${current.unknown.length} prices still missing.`}`,
     );
   }
   function preset(id) {
@@ -359,7 +383,14 @@
       ...(input.apps.includes("immich")
         ? [`Immich ML: ${input.ml ? "on" : "off"}`]
         : []),
-      `Cost: ${current.subtotal == null ? "not quoted" : `${money(current.subtotal)} ${current.complete ? "per month" : "known monthly subtotal"}`}`,
+      `Cost: ${current.subtotal == null ? "not quoted" : `${money(current.subtotal)} per month${current.complete ? "" : " (partial)"}`}`,
+      `Total monthly cost: ${current.complete ? `${money(current.subtotal)} per month from your quotes` : `unknown; ${current.unknown.length} prices still missing`}`,
+      `Priced items: ${
+        current.lines
+          .filter((line) => line.cost != null)
+          .map((line) => line.label)
+          .join(", ") || "none"
+      }`,
       `Unquoted: ${current.unknown.join(", ") || "none"}`,
       `Model reviewed: ${data.reviewed}`,
       "Planning estimates, not benchmark or guaranteed provider compatibility.",

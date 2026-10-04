@@ -600,6 +600,30 @@
   color: var(--secondary);
   margin: 14px 0 20px;
 }
+.cost-coverage {
+  border-left: 2px solid var(--accent);
+  background: var(--accent-wash);
+  color: var(--primary);
+  padding: 12px;
+  margin: 16px 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.cost-coverage strong,
+.cost-coverage span {
+  display: block;
+}
+.cost-coverage strong {
+  font-size: 15px;
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+.cost-included {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--primary);
+  margin: 0 0 16px;
+}
 .result-details {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);

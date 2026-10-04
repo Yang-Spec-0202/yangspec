@@ -31,7 +31,7 @@ The backup number is **one full copy of estimated data**, without spare capacity
 
 The planner does not attach a generic VPS price to a large disk requirement. Enter a recurring server quote, its included disk capacity, any extra primary storage rate, a separate backup rate, and monthly transfer, domain/license/tax and management fees. Costs above included capacity change with your library size.
 
-An empty field is **unknown**, not zero. A partial result is labeled a known subtotal. Even a complete quote-based total is not a provider offer: tiered pricing, minimum volume sizes, billing increments and renewal terms may change the bill. For a home server, include electricity in other monthly costs; account for hardware purchases and your time separately.
+An empty field is **unknown**, not zero. Until all cost items are priced, the total monthly cost stays unknown. The partial amount includes only the named priced items; storage and backup are not automatically covered by a server price. Enter the server's included disk capacity and a separate backup quote. Even a complete quote-based total is not a provider offer: tiered pricing, minimum volume sizes, billing increments and renewal terms may change the bill. For a home server, include electricity in other monthly costs; account for hardware purchases and your time separately.
 
 ### Playback changes the decision
 
