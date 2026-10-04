@@ -727,9 +727,20 @@ button[aria-pressed="true"] {
 .post-content table {
   font-size: 14px;
   line-height: 1.65;
-  display: block;
-  max-width: 100%;
+  display: table;
+  width: 100%;
+  margin: 0;
+}
+.table-scroll {
   overflow-x: auto;
+  margin-bottom: 22px;
+  border: 1px solid var(--border);
+}
+.table-hint {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--secondary);
+  margin-bottom: 10px !important;
 }
 .post-content th {
   background: var(--green-wash);
