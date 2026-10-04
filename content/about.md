@@ -14,7 +14,8 @@ The centrepiece is the free [Self-Hosting Planner](/tools/selfhost-planner/), wh
 
 ## How we make recommendations
 
-- We recommend providers and tools that are widely used and reasonably reliable, based on public pricing and specifications.
+- We distinguish verified official requirements, our planning allowances and actual measurements. The current calculator has not been benchmarked against these workloads.
+- Provider links are references for gathering current quotes, not a universal ranking or a claim that a package matches your result. The capacity model does not rank by commission.
 - Some links on this site may be affiliate links. If you buy through them, we may earn a small commission at no extra cost to you. This never changes the price you pay, and we say so on the pages that contain them.
 - We do not accept payment for a positive review, and we point out the downsides of the things we recommend.
 

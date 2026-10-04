@@ -1,33 +1,57 @@
-<div class="shp">
-  <div class="shp-tool">
-    <h2>1. Pick the apps you want to run</h2>
-    <p class="shp-hint">Select everything you plan to self-host. Start small &mdash; you can always add later.</p>
-    <div class="shp-app-grid" id="appGrid"></div>
-    <div class="field-row">
-      <div>
-        <label class="field" for="users">Number of users</label>
-        <select id="users">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-        </select>
-      </div>
-      <div id="mediaWrap">
-        <label class="field" for="media">Media / photo storage (TB)</label>
-        <input type="number" id="media" min="0" step="0.5" value="0">
-      </div>
-      <div>
-        <label class="field" for="transcode">Hardware transcoding</label>
-        <label style="font-weight:400;font-size:0.9rem;display:flex;gap:8px;align-items:center;">
-          <input type="checkbox" id="transcode"> I need transcoding (Plex / Jellyfin)
-        </label>
-      </div>
-    </div>
+<div class="planner" data-planner>
+  <noscript><div class="plan-notice">The interactive planner needs JavaScript. You can still read the sizing method and official references below.</div></noscript>
+  <p class="sr-only" id="planner-status" role="status" aria-live="polite" aria-atomic="true"></p>
+  <div class="planner-topline"><p><span class="status-dot" aria-hidden="true"></span> Calculated in your browser · no account needed</p><button type="button" class="text-button" id="clear-plan">Reset plan</button></div>
+  <div class="planner-layout">
+    <form class="planner-inputs" id="planner-inputs" tabindex="-1" aria-label="Build your self-hosting plan">
+      <fieldset class="preset-fieldset">
+        <legend><span class="step-number">01</span> Choose a starting point</legend>
+        <p class="field-help">A small stack is a good place to begin. You can change every choice.</p>
+        <div class="preset-grid">{{ range hugo.Data.planner.presets }}<button type="button" class="preset-button" data-preset="{{ .id }}" aria-pressed="false"><strong>{{ .name }}</strong><span>{{ .description }}</span></button>{{ end }}</div>
+      </fieldset>
+      <fieldset class="apps-fieldset">
+        <legend><span class="step-number">02</span> Make it your stack</legend>
+        <p class="field-help">Open a category to add or remove apps.</p>
+        {{ range hugo.Data.planner.groups }}
+        {{ $group := . }}
+        <details class="app-group" data-group="{{ .id }}" {{ if eq .id "everyday" }}open{{ end }}>
+          <summary><span>{{ .name }}</span><span class="selection-count"><span data-count>0</span> selected</span></summary>
+          <p class="group-hint">{{ .hint }}</p>
+          <div class="app-grid">{{ range where hugo.Data.planner.apps "group" $group.id }}<label class="app-choice"><input type="checkbox" name="apps" value="{{ .id }}" data-app><span><strong>{{ .name }}</strong><span>{{ .desc }}</span></span></label>{{ end }}</div>
+        </details>
+        {{ end }}
+      </fieldset>
+      <fieldset class="capacity-fieldset">
+        <legend><span class="step-number">03</span> Set the workload</legend>
+        <div class="field-grid">
+          <div class="input-field"><label for="users">People using the stack</label><select id="users" name="users" data-validated aria-describedby="users-help users-error">{{ range slice 1 2 3 5 10 20 }}<option value="{{ . }}">{{ . }}{{ if eq . 1 }} person{{ else }} people{{ end }}</option>{{ end }}</select><p class="field-help" id="users-help">Light personal use, not concurrent stream count.</p><p class="field-error" id="users-error" hidden></p></div>
+          <div class="input-field"><label for="storageTb">Library / file storage <span>TB</span></label><input type="number" id="storageTb" name="storageTb" min="0" max="100" step="any" value="0" data-validated aria-describedby="storage-help storageTb-error"><p class="field-help" id="storage-help">Photos, video or files. 1 TB = 1,000 GB.</p><p class="field-error" id="storageTb-error" hidden></p></div>
+          <div class="input-field" id="playback-field" hidden><label for="playback">Video playback</label><select id="playback" name="playback" aria-describedby="playback-help"><option value="direct">Direct Play (no video conversion)</option><option value="hardware">Hardware transcoding (GPU / iGPU)</option><option value="software">Software transcoding (CPU)</option></select><p class="field-help" id="playback-help">Device support, codec and stream count matter.</p></div>
+          <div class="input-field" id="ml-field" hidden><label class="check-field" for="ml"><input type="checkbox" id="ml" name="ml" checked> Immich machine learning</label><p class="field-help">Photo search and recognition. Disabling ML changes the memory floor; it must also be disabled in Immich.</p></div>
+        </div>
+      </fieldset>
+      <details class="quote-panel">
+        <summary><span><span class="step-number">04</span> Add your monthly quotes</span><span class="optional-label">Optional</span></summary>
+        <p class="field-help">Use the same currency (USD) and renewal period. Leave unknown items empty; enter 0 only when confirmed included or free. These numbers stay in this page and are not saved.</p>
+        <div class="field-grid quote-grid">
+          {{ range slice (dict "id" "server" "label" "Server / month" "unit" "USD" "help" "Recurring server price. Enter its included storage below; backup needs a separate price.") (dict "id" "includedGb" "label" "Storage included with server" "unit" "GB" "help" "Disk space included in the server price. Leave blank if unknown.") (dict "id" "storageRate" "label" "Extra primary storage" "unit" "USD / GB-month" "help" "Rate for capacity beyond the included amount.") (dict "id" "backupRate" "label" "Separate backup storage" "unit" "USD / GB-month" "help" "One full copy; retention and requests may add cost.") (dict "id" "network" "label" "Transfer / egress" "unit" "USD / month" "help" "Your expected monthly network charge.") (dict "id" "extras" "label" "Domain, licenses & taxes" "unit" "USD / month" "help" "Convert yearly fees to a monthly amount.") (dict "id" "management" "label" "Management / other" "unit" "USD / month" "help" "Optional service fees; your time is not priced here.") }}
+          <div class="input-field"><label for="quote-{{ .id }}">{{ .label }} <span>{{ .unit }}</span></label><input type="number" id="quote-{{ .id }}" name="{{ .id }}" min="0" step="any" data-validated aria-describedby="{{ .id }}-help {{ .id }}-error"><p class="field-help" id="{{ .id }}-help">{{ .help }}</p><p class="field-error" id="{{ .id }}-error" hidden></p></div>
+          {{ end }}
+        </div>
+      </details>
+    </form>
+    <section class="planner-result" id="result" aria-labelledby="result-title" tabindex="-1">
+      <div class="result-header"><h2 id="result-title">Your plan, explained.</h2><span class="model-label">MODEL {{ hugo.Data.planner.version }}</span></div>
+      <div id="result-content"><div class="result-empty"><span class="empty-symbol" aria-hidden="true">+</span><h3>A little planning goes a long way.</h3><p>Choose an app to see your plan.</p></div></div>
+      <div class="result-actions"><button type="button" class="button button-primary" id="copy-plan" disabled>Copy plan</button><a class="button button-quiet" href="#method">Read the method</a></div>
+      <div id="copy-fallback" hidden><label for="plan-text">Your plan text</label><textarea id="plan-text" rows="8" readonly></textarea></div>
+      <p class="result-footnote">A planning estimate, not a benchmark, quote or guarantee of provider compatibility.</p>
+    </section>
   </div>
-  <div class="result" id="result"></div>
-  <p class="shp-disclosure">Disclosure: some provider links above may become affiliate links. If you buy through them, this site may earn a small commission at no extra cost to you. Recommendations are based on public pricing and specs, not on commission size.</p>
+  <a class="mobile-result-link" href="#result" data-view-result><span id="result-summary">Choose an app to begin</span><strong data-result-action>View plan ↗</strong></a>
 </div>
-<script src="{{ "js/planner.js" | relURL }}" defer></script>
+<script id="planner-data" type="application/json">{{ hugo.Data.planner | jsonify | safeJS }}</script>
+{{ $model := resources.Get "js/planner-model.js" | minify | fingerprint }}
+{{ $script := resources.Get "js/planner.js" | minify | fingerprint }}
+<script src="{{ $model.RelPermalink }}" integrity="{{ $model.Data.Integrity }}" defer></script>
+<script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>

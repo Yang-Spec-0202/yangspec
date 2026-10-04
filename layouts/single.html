@@ -1,0 +1,7 @@
+{{ define "main" }}
+{{ if .Params.planner }}
+<article class="planner-page-content"><header class="tool-heading"><p class="eyebrow">THE SELF-HOSTING PLANNER</p><h1>Build a stack.<br><em>Make the numbers make sense.</em></h1><p>{{ .Description }}</p></header><div class="planner-content">{{ .Content }}</div></article>
+{{ else }}
+<article class="post-single"><header class="post-header">{{ partial "breadcrumbs.html" . }}<p class="eyebrow">{{ .Params.guideLabel | default "YANGSPEC / FIELD NOTES" }}</p><h1 class="post-title">{{ .Title }}</h1><p class="post-description">{{ .Description }}</p><div class="post-meta">{{ .Date.Format "January 2, 2006" }}{{ if eq .Section "posts" }} · {{ .ReadingTime }} min read{{ end }}{{ if .Lastmod.After .Date }} · Updated {{ .Lastmod.Format "January 2, 2006" }}{{ end }}</div></header>{{ if .Param "ShowToc" }}{{ partial "toc.html" . }}{{ end }}<div class="post-content md-content">{{ .Content }}</div>{{ if eq .Section "posts" }}<aside class="article-next" aria-label="Try the planner"><p class="eyebrow">PUT IT INTO PRACTICE</p><h2>What does your stack need?</h2><p>Make a capacity plan, then add quotes for the whole setup.</p><a class="button button-primary" href="{{ "/tools/selfhost-planner/" | relURL }}">Build your plan ↗</a></aside>{{ end }}<footer class="post-footer"><ul class="post-tags">{{ range .GetTerms "tags" }}<li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>{{ end }}</ul></footer></article>
+{{ end }}
+{{ end }}

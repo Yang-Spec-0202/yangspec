@@ -1,3 +1,4 @@
 {{- if eq .Type "tools" -}}
-<link rel="stylesheet" href="{{ "css/planner.css" | relURL }}">
+{{ $css := resources.Get "css/planner.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 {{- end -}}

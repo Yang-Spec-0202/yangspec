@@ -7,7 +7,8 @@ paginate = 10
 summaryLength = 30
 
 [params]
-  description = "Free tools and honest guides for planning a self-hosted server — pick the right VPS, size your hardware, and stop overpaying for cloud subscriptions."
+  defaultTheme = "light"
+  description = "Plan a self-hosted stack with transparent capacity estimates, separate backups and a complete monthly cost worksheet."
   author = "YangSpec"
   ShowReadingTime = true
   ShowShareButtons = false
@@ -18,9 +19,10 @@ summaryLength = 30
   DateFormat = "January 2, 2006"
   mainSections = ["posts"]
 
-  [params.homeInfoParams]
-    Title = "Plan your self-hosted server the smart way"
-    Content = "Stop guessing how much RAM your apps need or which VPS to buy. Use the free Self-Hosting Planner, then read the honest guides below."
+[params.assets]
+  favicon = "favicon.svg"
+  theme_color = "#213c35"
+  msapplication_TileColor = "#213c35"
 
 [markup]
   [markup.goldmark.renderer]

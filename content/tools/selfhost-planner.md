@@ -1,39 +1,50 @@
 ---
-title: "Self-Hosting Planner: What VPS Do You Actually Need?"
+title: "Self-Hosting Planner: Size Your Apps, Storage and Budget"
 date: 2026-10-04
-description: "Select the apps you want to self-host and instantly get a recommended RAM, CPU, and disk size, an estimated monthly cost, and reputable VPS providers to buy from."
+lastmod: 2026-10-04
+description: "Choose your apps, plan capacity and a separate backup, then add real quotes to understand the whole monthly cost."
+planner: true
+ShowToc: false
 ---
-
-Trying to self-host and not sure how much server you need? Don't buy a 16 GB machine to run your first app, and don't get stuck with a 1 GB box that crashes the moment Jellyfin starts transcoding. Pick the apps you actually plan to run below, and the planner will estimate the right size and point you at sane places to buy it.
 
 {{< selfhost-planner >}}
 
-## How the estimate works
+<h2 id="method">The method, without the mystery.</h2>
 
-Each app has a typical RAM and CPU footprint. The planner adds them up, applies a small multiplier for the number of users, adds a base amount for the operating system and Docker, then rounds up to the nearest common VPS size. Media storage is added on top because photos and video dominate disk usage on almost every setup.
+This planner is for **small personal stacks**, not production capacity certification. It combines transparent planning allowances with documented system guidance where we have verified it. The result is a capacity target to compare with a real machine or plan, not a package that we have tested or a provider recommendation.
 
-The goal is a **sane starting point**, not a guarantee. If you are unsure, size up one tier &mdash; running out of RAM is painful, while a slightly larger VPS just costs a couple more dollars a month.
+### Memory and compute
 
-## How to read the result
+Service memory allowances are added to 0.5 GB for the OS and runtime. We apply a personal-use multiplier of 8% for each additional user, capped at 2×, and add 25% memory headroom. These are **YangSpec assumptions**, not measured concurrency or vendor promises. Memory rounds up in 2 GB increments.
 
-- **RAM** is the number that most often limits self-hosting. Most crashes and "killed" containers come from running out of memory, not CPU.
-- **vCPU cores** matter for transcoding, OCR (Paperless), and heavy background jobs. Light apps mostly idle.
-- **Disk** is a minimum. Media libraries grow forever, so pick a provider that lets you attach or expand storage cheaply.
+Documented whole-host guidance acts as a floor. [Immich](https://docs.immich.app/install/requirements/) currently lists 6 GB / 2 cores minimum and 8 GB / 4 cores recommended. Its 4 GB exception requires machine learning disabled. [PhotoPrism](https://docs.photoprism.app/getting-started/) calls for at least 3 GB physical RAM, 2 cores and 4 GB swap. [Jellyfin's hardware guide](https://jellyfin.org/docs/general/administration/hardware-selection/) recommends 8 GB system memory. A service allowance in our model is not the same thing as an official system requirement.
 
-## Frequently asked questions
+CPU figures are personal-use allowances, not performance benchmarks. More accounts do not tell us how many people will stream, import photos or run OCR at the same time. Beyond 32 GB or 8 cores we flag custom sizing rather than returning an insufficient final tier.
 
-### Can I run everything on one small VPS?
+### Storage and a real backup
 
-Yes, for light apps. Vaultwarden, AdGuard Home, Uptime Kuma, ntfy and similar tools can all share a 1 GB or 2 GB VPS without trouble. Media servers and photo apps are the ones that push you into bigger plans.
+Storage uses **decimal units: 1 TB = 1,000 GB**. We add application/data allowances to your file library and reserve 20% spare capacity. When Immich is selected, we conservatively add 20% of the entered library for generated files; for mixed photo/video stacks, this applies to the whole library and may overestimate that overhead. Separate libraries and unusually large caches need manual adjustment.
 
-### Is 1 GB of RAM enough?
+The backup number is **one full copy of estimated data**, without spare capacity. It is not a retention policy. Historical versions, snapshots, database exports, requests, restore tests and a second destination can require more space or fees. [Immich's backup guide](https://docs.immich.app/administration/backup-and-restore/) is a useful example of why both files and the database matter.
 
-For a couple of tiny services, yes. For almost anything with a database and a web UI under regular use, 2 GB is a much more comfortable floor in 2026.
+### Costs come from your quotes
 
-### Do I need hardware transcoding?
+The planner does not attach a generic VPS price to a large disk requirement. Enter a recurring server quote, its included disk capacity, any extra primary storage rate, a separate backup rate, and monthly transfer, domain/license/tax and management fees. Costs above included capacity change with your library size.
 
-Only if you stream video to devices that can't play the original format directly. If you do, budget for an Intel CPU with Quick Sync, which most budget VPS providers do not offer &mdash; a small home server is often cheaper than a transcoding VPS.
+An empty field is **unknown**, not zero. Until all cost items are priced, the total monthly cost stays unknown. The partial amount includes only the named priced items; storage and backup are not automatically covered by a server price. Enter the server's included disk capacity and a separate backup quote. Even a complete quote-based total is not a provider offer: tiered pricing, minimum volume sizes, billing increments and renewal terms may change the bill. For a home server, include electricity in other monthly costs; account for hardware purchases and your time separately.
 
-### VPS, dedicated server, or a home server?
+### Playback changes the decision
 
-Start with a VPS if you want low upfront cost and don't need much storage. Move to a home server (or a storage-focused box) once your media library or photo collection outgrows cheap VPS storage.
+- **Direct Play:** clients use the original video without conversion. Verify client and codec support.
+- **Hardware transcoding:** confirm a compatible GPU/iGPU, codec support, drivers and device access. Additional vCPU cores do not establish GPU access on a VPS.
+- **Software transcoding:** the planner deliberately leaves transcode capacity unsized. Resolution, codec, tone mapping and simultaneous streams require a workload test.
+
+Read [Jellyfin's hardware selection guide](https://jellyfin.org/docs/general/administration/hardware-selection/) before choosing a media host. Immich ML on amd64 also requires a compatible CPU instruction set in its current v3 guidance.
+
+<h2 id="next-step">Take the plan to a real quote.</h2>
+
+Use our [VPS buying checklist](/posts/best-cheap-vps-for-self-hosting-2026/) to compare location, usable disk, network limits, renewals and backup options. For large libraries or transcoding, compare a home server or dedicated/storage-focused host as well. We do not claim that an unverified provider package matches your plan.
+
+You can also read [the RAM guide](/posts/how-much-ram-to-self-host/) and [the full-cost comparison](/posts/self-hosting-vs-cloud-cost/). Some links elsewhere on the site may earn a commission; commission does not enter this calculator's capacity or cost formulas.
+
+Model version 1.0 · reviewed October 4, 2026. Deployment references explain how an app is hosted; they do not validate every allowance. We have not benchmarked these workloads.

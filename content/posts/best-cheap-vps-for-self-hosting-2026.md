@@ -1,73 +1,54 @@
 ---
-title: "Best Cheap VPS for Self-Hosting in 2026"
+title: "Choosing a VPS for Self-Hosting: What to Check Before Buying"
+shortTitle: "Choose a host, not a headline price."
+guideLabel: "BUYING / FIELD GUIDE"
 date: 2026-10-04
-description: "A practical, no-hype look at the cheapest VPS providers worth self-hosting on in 2026 — what you actually get for your money, and where the hidden traps are."
+lastmod: 2026-10-04
+description: "A practical checklist for capacity, location, usable storage, network limits, renewals and a separate backup."
+summary: "Compare the plan that fits your workload, including storage and renewal costs, without relying on an unverified provider ranking."
 tags: ["VPS", "self-hosting", "hosting"]
 ---
 
-*Disclosure: this site may earn a commission if you buy through some links on this page, at no extra cost to you. We only recommend providers that are widely used and reasonably reliable.*
+**Choose the smallest plan that fits your verified requirements and your recovery plan.** The cheapest headline rate is not enough to make a decision. Region, usable storage, network limits, renewal, hardware access and backup options can change the real cost.
 
-If you want to self-host, the first real decision is where to put it. A paid cloud VPS is the fastest path: no hardware to buy, you can destroy and rebuild it in minutes, and a decent entry plan costs less than one streaming subscription.
+This page is a buying checklist. We have not benchmarked these providers or established a universal “best” ranking. Pricing references below are ordinary links in this version; they are not verified matches for a planner result. Any future affiliate link will be disclosed and will not determine suitability.
 
-Here is what actually matters when you are shopping for a cheap VPS in 2026, and which providers are worth your time.
+## Take a capacity target with you
 
-## What "cheap" really means
+Use the [Self-Hosting Planner](/tools/selfhost-planner/) to organize your apps, library and a separate backup. Read the source conditions for photo indexing and video playback. The number of users is not the number of simultaneous transcodes or OCR jobs.
 
-The headline price is not the whole story. Three things decide whether a VPS is genuinely good value:
+A shared vCPU count does not guarantee a particular throughput. Match architecture, device support and application requirements before comparing prices.
 
-- **RAM per dollar.** Self-hosting fails from out-of-memory far more often than from slow CPUs. RAM is the number to watch.
-- **Renewal price.** Many providers advertise $3/month and quietly renew at $12. Always check the renewal rate.
-- **Storage and bandwidth.** Media and photos grow endlessly. Cheap SSD and generous transfer matter more than a fast CPU for most homelab stacks.
+## Seven things to put beside the price
 
-A useful rule: ignore "starting at" prices, and compare the price you will pay in year two for a plan with **at least 4 GB of RAM**.
+1. **Location and connectivity.** Choose an available location suitable for your users and test latency where possible. Check IPv4/IPv6 and the cost of addresses you need.
+2. **Memory and CPU terms.** Check whether resources are shared or dedicated, the architecture, fair-use conditions and how upgrades work.
+3. **Usable primary storage.** Confirm included disk, additional volumes, minimum billing sizes, filesystem compatibility and expansion limits. Object storage is not interchangeable with a database's local disk.
+4. **Transfer and egress.** Read included allowances, overage rates, port limits and any difference between traffic types or locations.
+5. **The actual renewal bill.** Record currency, tax, billing interval, minimum term, setup fees and the price after any promotion.
+6. **Backup and recovery.** Quote a separate destination and sufficient retention. Check restore procedure and time; a snapshot in the same failure domain may not be enough.
+7. **Support and exit.** Read current support, cancellation, export and acceptable-use terms. An SLA credit is not the same as your application remaining available.
 
-## The short list
+## Current pricing references
 
-### Hetzner Cloud — best price-to-performance
+Visit a provider's own pricing page for the exact plan and location. Record the quote date and conditions. These links help you gather quotes; listing a provider does not establish reliability, value or support for your particular workload.
 
-Hetzner is the community favorite for a reason: fast NVMe storage, modern CPUs, and prices that are hard to beat in the EU. A 4 GB plan is a few euros a month and comfortably runs a full starter stack. The catch is that all locations are in Europe and the US presence is limited, so latency to North America can be higher. Support is functional but minimal, and they enforce their acceptable-use policy strictly.
-
-**Best for:** European users, or anyone who cares more about price than location.
-
-### Contabo — most RAM per dollar
-
-If you want the biggest number on the spec sheet for the least money, Contabo wins. You can get 8 GB, even 16 GB, for what rivals charge for 4 GB. The trade-off is real: aggressive resource sharing means peak performance is inconsistent, setup can be slower, and support is self-service. For storage-heavy, low-traffic workloads it is an excellent deal.
-
-**Best for:** Bulk storage and RAM-heavy, low-traffic services.
-
-### Vultr and DigitalOcean — best developer experience
-
-Both offer a polished control panel, excellent documentation, and one-click images for popular apps. You pay a small premium for that convenience, but for a first-time self-hoster the smoother experience is often worth a few dollars. DigitalOcean's tutorials are arguably the best beginner resource on the internet.
-
-**Best for:** Beginners who value documentation and a clean dashboard.
-
-### Hostinger VPS — beginner-friendly with AI tooling
-
-Hostinger has pushed hard into VPS hosting with aggressive intro pricing and an AI assistant baked into the panel. It is a reasonable on-ramp if you want hand-holding, but read the renewal terms carefully, since the promotional price jumps after the first term.
-
-**Best for:** Total beginners who want guided setup.
-
-## Quick comparison
-
-| Provider | Sweet spot | Watch out for |
+| Provider | Official reference | What to record |
 |---|---|---|
-| Hetzner Cloud | Best raw value in the EU | EU-only regions, strict AUP |
-| Contabo | Most RAM/storage per dollar | Inconsistent peak performance |
-| DigitalOcean | Best docs and UX | Higher price per GB |
-| Vultr | Fast global locations | Support varies by story |
-| Hostinger | Easy start, AI assistant | Renewal price spikes |
+| Hetzner Cloud | [Cloud plans](https://www.hetzner.com/cloud/) | Location, architecture, included disk/transfer, extra volumes and addresses |
+| Contabo | [VPS plans](https://contabo.com/en/vps/) | Exact plan, location, contract period, setup and renewal terms |
+| DigitalOcean | [Pricing](https://www.digitalocean.com/pricing) | Droplet class, additional storage, backups and outbound transfer |
+| Vultr | [Pricing](https://www.vultr.com/pricing/) | Product class, location, storage, transfer and addresses |
+| Hostinger | [VPS plans](https://www.hostinger.com/vps-hosting) | Initial term, renewal bill, storage, transfer and management scope |
 
-## Where self-hosters get burned
+We intentionally do not reuse generic $5/$12/$24 compute estimates as total costs for large libraries. Put the complete quote into the planner and keep unknown costs visible.
 
-1. **Buying on the intro price.** That $2.99 plan may renew at three times the cost. Check the second-year price before you commit.
-2. **Under-buying RAM.** A 1 GB VPS feels fine until a database, a web app and a backup job overlap. 2 GB is the realistic floor; 4 GB is comfortable.
-3. **Ignoring backup storage.** A VPS is not a backup. Budget for a second location, or use cheap object storage so a provider outage does not wipe your data.
-4. **Over-buying on day one.** You do not need 32 GB to run Vaultwarden and a monitoring tool. Start small and scale.
+## When a standard VPS needs another look
 
-## Not sure what size you need?
+For hardware video conversion, confirm a compatible device and access to it; a larger CPU-only plan does not establish GPU support. For terabytes of photos or films, compare attached volumes with storage-focused, dedicated or home-server options. Verify a photo app's database and filesystem requirements as well.
 
-That depends entirely on which apps you want to run. Instead of guessing, use our free [Self-Hosting Planner](/tools/selfhost-planner/): select your apps, and it estimates the RAM, CPU and disk you need, then suggests providers to match.
+A small home machine still needs electricity, backups, updates and enough upload bandwidth for remote access. Compare it using [the full-cost worksheet](/posts/self-hosting-vs-cloud-cost/), rather than assuming either location is always cheaper.
 
-## Bottom line
+## Keep a record you can revisit
 
-For most people, the best cheap VPS in 2026 is **Hetzner** if you are in or near Europe, **Contabo** if you want maximum RAM and storage for the money, and **DigitalOcean or Vultr** if you would rather pay a little more for a smoother first experience. Pick the provider that matches your location and budget, start with a mid-size plan you can grow into, and keep a separate backup.
+Save the quoted plan name, location, date, recurring bill, resource limits and backup procedure. After setup, compare the first busy week and the first bill with your plan. That evidence is more useful than an unqualified “best provider” label.
