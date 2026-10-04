@@ -22,6 +22,7 @@
   let copyTimer;
   let revision = 0;
   let explanationOpen = false;
+  let lastInputState;
   const copyButton = document.getElementById("copy-plan");
   const money = (value) =>
     new Intl.NumberFormat("en-US", {
@@ -55,11 +56,11 @@
       status.textContent = text;
     }, 300);
   }
-  function update() {
+  function update(input = read()) {
+    lastInputState = JSON.stringify(input);
     revision += 1;
     clearTimeout(copyTimer);
     copyButton.textContent = "Copy plan";
-    const input = read();
     current = model.estimate(data, input);
     const hasVideo = input.apps.some(
       (id) => data.apps.find((app) => app.id === id)?.video,
@@ -320,8 +321,13 @@
     update();
   }
   form.addEventListener("submit", (event) => event.preventDefault());
-  form.addEventListener("input", update);
-  form.addEventListener("change", update);
+  function updateFromForm() {
+    const input = read();
+    // Blur can emit change after input; keep the existing result and its focus.
+    if (JSON.stringify(input) !== lastInputState) update(input);
+  }
+  form.addEventListener("input", updateFromForm);
+  form.addEventListener("change", updateFromForm);
   root
     .querySelectorAll("[data-preset]")
     .forEach((button) =>

@@ -21,4 +21,6 @@ Run `node --test tests/planner-model.test.cjs` (Node 22+), `node --check assets/
 
 Check home, planner (empty and selected states), and a guide at 320, 390, 768, 1024 and 1440 px, in both themes. Cover keyboard navigation, visible focus, errors, result/edit navigation, copying, reset and reduced motion. Run Lighthouse on the Pages preview; repeated lab scores do not establish real-user Core Web Vitals or full accessibility conformance.
 
+In the planner, type a value in the last quote field and press Tab. Focus must stay on “Why this size?”; Enter should open and close the explanation, and the next Tab should reach Copy plan. An unchanged blur event must not rebuild the focused result. Also verify select/checkbox changes, presets and reset still refresh the plan.
+
 Avoid unverified provider rankings, generic prices that exclude required storage, or claims that a VPS supports hardware transcoding without confirmed device access. Keep secrets and authentication material out of source and reports.
