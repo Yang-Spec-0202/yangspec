@@ -4,7 +4,7 @@ A Hugo / PaperMod site with a browser-local self-hosting planner. Production use
 
 ## Local development
 
-Use Hugo Extended 0.167.0 or the production build's pinned version. Initialize the theme with `git submodule update --init --recursive`, then run `hugo server`. The site needs no frontend package installation.
+Use Hugo Extended 0.167.0 or the production build's pinned version, then run `hugo server`. PaperMod is checked into `themes/PaperMod` as ordinary tracked files; there is no theme submodule to initialize. The site needs no frontend package installation.
 
 Run `node --test tests/planner-model.test.cjs` (Node 22+), `node --check assets/js/planner.js`, and `hugo --environment production` before deploying. The inherited PaperMod `.Language.LanguageCode` deprecation warning does not prevent the current build; review theme compatibility before upgrading Hugo.
 
