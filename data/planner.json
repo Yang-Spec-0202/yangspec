@@ -1,0 +1,285 @@
+{
+  "reviewed": "2026-10-04",
+  "version": "1.0",
+  "assumptions": {
+    "osRamMb": 512,
+    "memoryHeadroom": 1.25,
+    "storageHeadroom": 1.2,
+    "maxStarterRamGb": 32,
+    "maxStarterCpu": 8
+  },
+  "groups": [
+    {
+      "id": "everyday",
+      "name": "Everyday essentials",
+      "hint": "Small services, useful every day."
+    },
+    {
+      "id": "media",
+      "name": "Photos & media",
+      "hint": "Plan for indexing, storage and playback."
+    },
+    {
+      "id": "work",
+      "name": "Files & workflows",
+      "hint": "Documents, automation and collaboration."
+    },
+    {
+      "id": "advanced",
+      "name": "Infrastructure",
+      "hint": "Extra care for retention, federation and storage."
+    }
+  ],
+  "presets": [
+    {
+      "id": "essentials",
+      "name": "Start small",
+      "description": "Passwords, monitoring & DNS",
+      "apps": ["vaultwarden", "uptimekuma", "adguard"],
+      "storageTb": 0
+    },
+    {
+      "id": "photos",
+      "name": "Keep your photos",
+      "description": "Immich + a 1 TB library",
+      "apps": ["immich"],
+      "storageTb": 1
+    },
+    {
+      "id": "media",
+      "name": "Stream your media",
+      "description": "Jellyfin + a 2 TB library",
+      "apps": ["jellyfin"],
+      "storageTb": 2
+    }
+  ],
+  "apps": [
+    {
+      "id": "vaultwarden",
+      "name": "Vaultwarden",
+      "desc": "Passwords & secure sharing",
+      "group": "everyday",
+      "ramMb": 256,
+      "cpu": 0.25,
+      "diskGb": 2,
+      "source": "https://github.com/dani-garcia/vaultwarden",
+      "sourceLabel": "Project deployment reference",
+      "context": "Personal installation; this allowance is not an official minimum."
+    },
+    {
+      "id": "adguard",
+      "name": "AdGuard Home",
+      "desc": "Network-wide DNS filtering",
+      "group": "everyday",
+      "ramMb": 256,
+      "cpu": 0.25,
+      "diskGb": 2,
+      "source": "https://github.com/AdguardTeam/AdGuardHome",
+      "sourceLabel": "Project deployment reference",
+      "context": "DNS query volume and retention change resource use."
+    },
+    {
+      "id": "uptimekuma",
+      "name": "Uptime Kuma",
+      "desc": "Monitoring & status checks",
+      "group": "everyday",
+      "ramMb": 256,
+      "cpu": 0.25,
+      "diskGb": 2,
+      "source": "https://github.com/louislam/uptime-kuma",
+      "sourceLabel": "Project deployment reference",
+      "context": "A small set of monitors; frequency and history affect sizing."
+    },
+    {
+      "id": "ntfy",
+      "name": "ntfy",
+      "desc": "Notifications on your terms",
+      "group": "everyday",
+      "ramMb": 256,
+      "cpu": 0.25,
+      "diskGb": 2,
+      "source": "https://docs.ntfy.sh/faq/",
+      "sourceLabel": "Official deployment reference",
+      "context": "Personal use; attachment size and retention need separate planning."
+    },
+    {
+      "id": "homeassistant",
+      "name": "Home Assistant",
+      "desc": "A home that works together",
+      "group": "everyday",
+      "ramMb": 2048,
+      "cpu": 1,
+      "diskGb": 32,
+      "source": "https://www.home-assistant.io/installation/linux/",
+      "sourceLabel": "Official installation reference",
+      "context": "Add-ons and local AI are outside this personal-use allowance."
+    },
+    {
+      "id": "actual",
+      "name": "Actual Budget",
+      "desc": "Personal budgets & syncing",
+      "group": "everyday",
+      "ramMb": 256,
+      "cpu": 0.25,
+      "diskGb": 2,
+      "source": "https://actualbudget.org/docs/install/",
+      "sourceLabel": "Official deployment reference",
+      "context": "Budget tracking and personal sync; optional integrations can add cost."
+    },
+    {
+      "id": "jellyfin",
+      "name": "Jellyfin",
+      "desc": "Your own film & TV library",
+      "group": "media",
+      "ramMb": 2048,
+      "cpu": 0.5,
+      "diskGb": 100,
+      "video": true,
+      "recommendedRamGb": 8,
+      "source": "https://jellyfin.org/docs/general/administration/hardware-selection/",
+      "sourceLabel": "Official hardware guidance",
+      "context": "Current hardware guide recommends 8 GB system RAM and 100 GB SSD for OS, application and transcode cache. Media is extra."
+    },
+    {
+      "id": "plex",
+      "name": "Plex",
+      "desc": "A personal media library",
+      "group": "media",
+      "ramMb": 2048,
+      "cpu": 0.5,
+      "diskGb": 30,
+      "video": true,
+      "source": "https://support.plex.tv/articles/200375666-plex-media-server-requirements/",
+      "sourceLabel": "Official requirements reference",
+      "context": "Direct Play allowance only. Check hardware, codecs and current Plex Pass requirements. Requirements page could not be fully retrieved in this review."
+    },
+    {
+      "id": "immich",
+      "name": "Immich",
+      "desc": "Photos, memories & discovery",
+      "group": "media",
+      "ramMb": 4096,
+      "cpu": 1,
+      "diskGb": 20,
+      "photo": true,
+      "minimumRamGb": 6,
+      "recommendedRamGb": 8,
+      "minimumCpu": 2,
+      "recommendedCpu": 4,
+      "source": "https://docs.immich.app/install/requirements/",
+      "sourceLabel": "Official hardware requirements",
+      "context": "Current v3 documentation: 6 GB / 2 cores minimum; 8 GB / 4 cores recommended. 4 GB requires ML disabled; amd64 ML needs x86-64-v2."
+    },
+    {
+      "id": "photoprism",
+      "name": "PhotoPrism",
+      "desc": "Organize a photo collection",
+      "group": "media",
+      "ramMb": 3072,
+      "cpu": 1,
+      "diskGb": 20,
+      "photo": true,
+      "minimumRamGb": 3,
+      "minimumCpu": 2,
+      "source": "https://docs.photoprism.app/getting-started/",
+      "sourceLabel": "Official hardware requirements",
+      "context": "At least 3 GB physical RAM and 2 cores; official guidance also calls for 4 GB swap. Large indexing jobs need more capacity."
+    },
+    {
+      "id": "nextcloud",
+      "name": "Nextcloud",
+      "desc": "Files, calendars & collaboration",
+      "group": "work",
+      "ramMb": 1536,
+      "cpu": 0.5,
+      "diskGb": 30,
+      "source": "https://docs.nextcloud.com/server/latest/admin_manual/installation/system_requirements.html",
+      "sourceLabel": "Official requirements reference",
+      "context": "Official memory figures are per PHP process, not the complete database and app stack. Office and video calls are excluded."
+    },
+    {
+      "id": "paperless",
+      "name": "Paperless-ngx",
+      "desc": "A searchable document archive",
+      "group": "work",
+      "ramMb": 2048,
+      "cpu": 1,
+      "diskGb": 20,
+      "source": "https://github.com/paperless-ngx/paperless-ngx",
+      "sourceLabel": "Project deployment reference",
+      "context": "OCR allowance for personal use, not a throughput guarantee; extra document parsers need additional resources."
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "desc": "Connect tasks & automate work",
+      "group": "work",
+      "ramMb": 1024,
+      "cpu": 0.5,
+      "diskGb": 10,
+      "source": "https://github.com/n8n-io/n8n-docs/blob/main/docs/deploy/host-n8n/install-options/install-using-docker-compose.md",
+      "sourceLabel": "Official installation reference",
+      "context": "Workflow complexity and concurrent executions matter more than account count; AI execution is excluded."
+    },
+    {
+      "id": "forgejo",
+      "name": "Forgejo",
+      "desc": "Git hosting for your projects",
+      "group": "work",
+      "ramMb": 512,
+      "cpu": 0.25,
+      "diskGb": 10,
+      "source": "https://forgejo.org/docs/latest/admin/installation/",
+      "sourceLabel": "Official installation reference",
+      "context": "Personal repositories only; CI runners and builds are not included."
+    },
+    {
+      "id": "syncthing",
+      "name": "Syncthing",
+      "desc": "Keep your files in sync",
+      "group": "work",
+      "ramMb": 512,
+      "cpu": 0.25,
+      "diskGb": 10,
+      "source": "https://docs.syncthing.net/users/faq.html",
+      "sourceLabel": "Official sizing reference",
+      "context": "File count and indexing affect RAM; add your complete file dataset in library storage."
+    },
+    {
+      "id": "matrix",
+      "name": "Matrix / Synapse",
+      "desc": "A chat server of your own",
+      "group": "advanced",
+      "ramMb": 2048,
+      "cpu": 1,
+      "diskGb": 20,
+      "source": "https://element-hq.github.io/synapse/latest/setup/installation.html",
+      "sourceLabel": "Official installation reference",
+      "context": "Small personal instance only; large federated rooms need workload-specific sizing."
+    },
+    {
+      "id": "grafana",
+      "name": "Grafana + Prometheus",
+      "desc": "Metrics, retention & dashboards",
+      "group": "advanced",
+      "ramMb": 2048,
+      "cpu": 1,
+      "diskGb": 20,
+      "source": "https://grafana.com/docs/grafana/latest/setup-grafana/installation/",
+      "sourceLabel": "Official Grafana requirements",
+      "context": "Combined planning allowance. Grafana guidance does not size Prometheus; series cardinality and retention need separate measurement."
+    },
+    {
+      "id": "minio",
+      "name": "MinIO",
+      "desc": "S3-compatible object storage",
+      "group": "advanced",
+      "ramMb": 2048,
+      "cpu": 1,
+      "diskGb": 20,
+      "source": "https://github.com/minio/minio",
+      "sourceLabel": "Project deployment reference",
+      "context": "Evaluation allowance only. Production object storage needs a separate drive, resilience and capacity design."
+    }
+  ]
+}

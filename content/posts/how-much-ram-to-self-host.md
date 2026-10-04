@@ -1,63 +1,57 @@
 ---
-title: "How Much RAM Do You Need to Self-Host? (2026 Guide)"
+title: "How Much RAM Do You Need to Self-Host?"
+shortTitle: "Give your apps room to breathe."
+guideLabel: "CAPACITY / FIELD GUIDE"
 date: 2026-10-04
-description: "A straightforward guide to how much RAM popular self-hosted apps actually use, how much headroom to leave, and how to avoid the most common mistake: running out of memory."
+lastmod: 2026-10-04
+description: "Separate official requirements from planning allowances, leave room for background jobs, and choose a sensible starting capacity."
+summary: "How to separate official requirements, service allowances and headroom when sizing your own server."
 tags: ["RAM", "self-hosting", "hardware"]
 ---
 
-Out of every mistake new self-hosters make, running out of RAM is the one that causes the most pain. It rarely shows up as a clean error message. Instead a container gets silently killed, the web UI stops responding, or the whole server becomes unresponsive and you cannot even SSH in to see why.
+**Start with the requirements for the apps you will actually run.** A small stack of lightweight services can have a modest planning target. Photo indexing, document processing and media conversion are different workloads. A universal “4 GB is enough” answer is not reliable.
 
-This guide gives you realistic RAM numbers for popular apps and a simple way to add them up.
+This guide explains our planning method. It contains no measured RAM benchmarks, and our allowances are not guarantees.
 
-## The rule of thumb
+## Three numbers that should stay separate
 
-Add up your apps, then add headroom. Docker images, a reverse proxy, and the operating system itself all take a slice. A practical formula:
-
-**Total RAM = 0.5 GB (OS + Docker) + sum of app footprints + 25% headroom**
-
-Then round up to the next plan size. Running out of memory causes crashes and data corruption; having a little spare RAM costs almost nothing.
-
-## Typical RAM use by app
-
-These are working numbers for light personal use, not benchmarks. Real usage depends on user count and load.
-
-| App | Typical RAM | Notes |
+| Number | What it tells you | What it does not tell you |
 |---|---|---|
-| Vaultwarden | ~100–300 MB | Tiny, runs great on the smallest VPS |
-| AdGuard Home / Pi-hole | ~100–300 MB | Very light |
-| Uptime Kuma | ~100–300 MB | Monitoring; near-zero CPU |
-| ntfy | ~100–300 MB | Push notifications |
-| Home Assistant | ~600 MB–1 GB | Grows with add-ons |
-| Forgejo / Gitea | ~300–600 MB | Git hosting |
-| Syncthing | ~300–600 MB | File sync |
-| Nextcloud | ~1–1.5 GB | Database + PHP; wants more if busy |
-| n8n | ~1 GB | Automation workflows |
-| Paperless-ngx | ~2 GB | OCR is memory-hungry |
-| Nextcloud + Collabora | ~2–3 GB | Office editing adds a lot |
-| Matrix (Synapse) | ~2 GB | Databases and federation |
-| Grafana + Prometheus | ~2 GB | Metrics retention uses RAM |
-| Immich | ~4 GB | Machine-learning photo indexing |
-| Jellyfin / Plex (no transcode) | ~1–2 GB | Direct play is cheap |
-| Jellyfin / Plex (transcoding) | ~2–4 GB + | Needs a capable CPU/GPU |
+| Official system requirement | What the app's current documentation calls for, under its stated conditions | The complete needs of several other apps sharing that machine |
+| Service allowance | A working budget for our small personal-use model | A measured footprint or an official minimum |
+| Headroom | Spare capacity for overlap, imports and background work | Guaranteed throughput under a heavy concurrent workload |
 
-## The three classic mistakes
+Do not add every official whole-system recommendation together as though each were a single container's allocation. Do not replace official requirements with a smaller internet anecdote, either. Model the shared stack, respect documented guidance and measure the real workload after installation.
 
-### 1. Buying an 8 GB box to run two light apps
+## What the current official guidance says
 
-Vaultwarden, AdGuard Home and Uptime Kuma together use well under 1 GB. A 1–2 GB VPS handles them fine. Buying huge "to be safe" just wastes money every month.
+Checked October 4, 2026; requirements can change with versions and features.
 
-### 2. Trying to run Immich on a 2 GB VPS
+| App | Official guidance | Condition to notice |
+|---|---|---|
+| [Immich](https://docs.immich.app/install/requirements/) | 6 GB RAM / 2 cores minimum; 8 GB / 4 cores recommended | Its 4 GB exception requires ML disabled. Current v3 ML on amd64 needs x86-64-v2. Database storage needs a supported local filesystem. |
+| [PhotoPrism](https://docs.photoprism.app/getting-started/) | At least 3 GB physical RAM and 2 cores; 4 GB swap | Large images and indexing can require more; a hard memory cap can cause restarts. |
+| [Jellyfin](https://jellyfin.org/docs/general/administration/hardware-selection/) | The current hardware guide recommends 8 GB system RAM | Codec, GPU and client compatibility determine transcoding; memory alone does not establish support. |
+| [Nextcloud](https://docs.nextcloud.com/server/latest/admin_manual/installation/system_requirements.html) | Memory guidance is per PHP process | Budget separately for the database, worker count and optional apps. A per-process figure is not a server-size recommendation. |
 
-Immich's machine-learning step for photo and face recognition needs several gigabytes. On a small box it will thrash, get killed, or crawl. Either give it 4 GB or disable the ML features.
+These are system and deployment conditions, not a promise that all four run comfortably on one machine matching only the largest figure.
 
-### 3. Forgetting about transcoding
+## Our personal-stack calculation
 
-Plex and Jellyfin play video cheaply when the client supports the format directly ("direct play"). The moment they must convert ("transcode"), they need real CPU power, and budget VPS providers usually do not offer hardware transcoding. If transcoding is a requirement, a small home server with an Intel Quick Sync CPU is often the better buy.
+The [Self-Hosting Planner](/tools/selfhost-planner/) adds service allowances to 0.5 GB for the OS/runtime, applies a small user multiplier, then adds 25% memory headroom. The result rounds upward and respects documented whole-host guidance where available.
 
-## Add it up automatically
+For example, its small essentials preset budgets 256 MB each for Vaultwarden, AdGuard Home and Uptime Kuma. With the shared base and headroom, that gives a **2 GB planning target**. Those 256 MB values are our allowances for light personal use, not official minima or measurements. Monitoring history, queries, backups and other work can change the result.
 
-Rather than eyeball it, use the [Self-Hosting Planner](/tools/selfhost-planner/). Select the apps you want, set the number of users, and it adds up the RAM, CPU and disk and recommends a VPS size — with places to buy one.
+The photo preset uses an **8 GB / 4-core target** for Immich with ML enabled, following its documented recommendation. Turning ML off changes the model, but you must also disable it in the application. Adding other services or heavy imports needs more consideration.
 
-## Bottom line
+## Jobs that overlap change the answer
 
-For a first self-hosted stack of light tools, **2 GB** is a good starting point. Add media or photo apps and plan on **4 GB or more**. Leave at least 25% free headroom, and size up one step if you are unsure. RAM is cheap; outages are not.
+A quiet dashboard is not the same as OCR, a large photo upload, a backup and media conversion happening together. Estimate a representative busy period, limit or schedule heavy work where practical, then monitor memory pressure and actual application behavior.
+
+CPU cores on shared hosting also vary in available performance. A hardware transcode requirement needs an appropriate device and access to it; buying extra RAM is not a substitute.
+
+## A capacity plan is only the first step
+
+Check storage, backup, transfer and the full recurring quote before purchase. For a photo or media library, those costs can dominate compute. A spare home machine may be worth comparing with a VPS, but it still has electricity, replacement, availability and maintenance costs.
+
+Build your own [capacity and cost plan](/tools/selfhost-planner/), inspect its assumptions, and compare it with a real offer. Revisit the plan after your first import or busy week, using measurements rather than treating the first estimate as permanent.

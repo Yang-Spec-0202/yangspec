@@ -21,6 +21,12 @@ We may use third-party advertising, including **Google AdSense**, to display ads
 
 We may use privacy-respecting or third-party analytics to understand how the site is used. This helps us improve content and tools. Any analytics data is treated in aggregate.
 
+## Planner inputs and preferences
+
+App choices, capacity inputs and monthly quotes are calculated in your browser. The planner does not submit those values to a server, add them to a share URL or save them between visits. The Copy plan button writes a summary to your clipboard only when you choose it. Keep any copied plan private if it contains information you do not wish to share.
+
+The site can save your light/dark theme preference in browser local storage. Hosting and traffic analytics operate separately from the calculator; the current live site includes a Cloudflare Web Analytics script.
+
 ## Affiliate links
 
 Some pages contain affiliate links. If you click one and make a purchase, the merchant may record that the visit came from this site so we can be paid a commission. This does not affect the price you pay and does not give us access to your personal or payment information.

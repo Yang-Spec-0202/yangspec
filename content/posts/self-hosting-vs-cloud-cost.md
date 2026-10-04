@@ -1,84 +1,63 @@
 ---
-title: "Self-Hosting vs the Cloud: The Real Cost Comparison (2026)"
+title: "Self-Hosting vs Cloud Subscriptions: Compare the Whole Cost"
+shortTitle: "The server is only part of the bill."
+guideLabel: "COST / FIELD GUIDE"
 date: 2026-10-04
-description: "Does self-hosting actually save money? Here is an honest, numbers-first comparison of running your own server versus paying for cloud subscriptions and SaaS."
+lastmod: 2026-10-04
+description: "Count storage, backups, electricity and your time before deciding whether self-hosting is the better deal."
+summary: "A transparent cost worksheet for comparing a VPS, home server and the subscriptions you would actually replace."
 tags: ["self-hosting", "cost", "cloud"]
 ---
 
-*Disclosure: this site may earn a commission if you buy through some links on this page, at no extra cost to you.*
+**Self-hosting can save money, but it can also cost more.** Compare the services you would actually replace with the complete cost of providing a similar result. More control or privacy may justify a higher cost; savings are not the only reason to self-host.
 
-"Self-hosting saves you money" is repeated so often that people stop questioning it. Sometimes it is true. Sometimes it is not. The honest answer depends on what you are replacing, how much storage you need, and whether you value your own time.
+This is an accounting worksheet, not a live price comparison or a savings promise. Use current quotes in the same currency, region, tax treatment and billing period.
 
-Let's do the math.
+## Start with what would really change
 
-## The subscription side
+Write down your existing subscription costs. Only count a subscription as avoided when you can and will cancel it. A media server does not replace a streaming service's licensed catalogue; software features, storage, sharing, uptime and support may also differ.
 
-A typical household pays for a handful of services:
+Annual fees should be divided by 12 for a monthly comparison. Promotional prices need a separate first-term and renewal calculation.
 
-| Service | Typical monthly cost |
-|---|---|
-| Cloud storage (e.g. 2 TB) | $10 |
-| Streaming (one or two services) | $15–30 |
-| Password manager | $3 |
-| Notes / productivity | $5–10 |
-| Photo backup | part of cloud storage |
-| **Total** | **$33–53/month** |
+## Count the self-hosting side
 
-Over five years, that is roughly **$2,000 to $3,200**.
+| Cost | VPS or rented server | Home server |
+|---|---|---|
+| Compute | Recurring server quote, including renewal | Purchase or replacement allowance |
+| Primary storage | Included disk plus compatible additional capacity | Drives, usable capacity and replacement |
+| Backup | A separate target, retention, requests and restores | The same; another drive beside the server is not off-site protection |
+| Network | Included transfer, egress, limits and extra fees | Internet plan, remote upload constraints and any extra charge |
+| Other cash costs | Domain, licenses, taxes, optional management | These plus electricity and any UPS or accessories |
+| Your time | Setup, updates, restores and incident response | These plus hardware maintenance |
 
-## The self-hosting side
+For a large library, get a quote for the **actual disk requirement**. A small compute plan's headline price does not include terabytes of compatible storage or a separate backup.
 
-Self-hosting splits into a one-time cost and a small recurring one.
+## A worked example with stated assumptions
 
-### Option A: A VPS
+Suppose you enter **your own illustrative quotes** of $20/month for a server, $12 for additional primary storage, $6 for backups and $2 for other fees. Confirm transfer and optional management are included or zero. The known cash total is $40/month, or $480/year.
 
-- VPS (4 GB): ~$12/month, or ~$144/year
-- Domain: ~$12/year
-- Backups (object storage): ~$3–5/month
+If you would actually cancel $30/month of subscriptions, this example costs **$10/month more**, before accounting for your time. If a $12 storage item has not been quoted, call the result a **partial subtotal**, not a complete $28/month total.
 
-Five-year total: roughly **$900–1,100** — and you control the data.
+These numbers are deliberately hypothetical. They are not current provider offers, hardware prices or general market averages.
 
-### Option B: A home server
+## Electricity and hardware need their own line
 
-- Mini PC (N100/N305 class): $150–300 one-time
-- Storage (a couple of drives): $150–300 one-time
-- Electricity: ~$25–50/year
-- Domain: ~$12/year
+For a home server, estimate electricity as:
 
-Five-year total: roughly **$500–900** depending on how much storage you add.
+**average watts ÷ 1,000 × hours running × your electricity rate**
 
-Either way, self-hosting usually comes out **cheaper over a multi-year horizon** than a full stack of subscriptions — especially once storage is involved, because cloud storage is where the subscriptions quietly add up.
+An illustrative 20 W machine running for 720 hours uses 14.4 kWh. Apply your real local rate, and include storage, networking and cooling if relevant. Measure average consumption rather than using only a processor's nominal power rating.
 
-## What the comparison leaves out
+Spread an equipment purchase over your chosen ownership period for comparison, while recognizing that the cash is paid upfront. Do not count equipment you already own as free forever: future replacement and drives still matter.
 
-The money is only part of it. Be honest about the rest:
+## Time, reliability and features matter
 
-- **Your time.** Setup takes an afternoon. Maintenance takes an hour or two a month. If you value that time at a high rate, the savings shrink fast.
-- **Reliability.** A big cloud provider rarely goes down. Your single VPS or home server can. Backups are not optional.
-- **Responsibility.** When something breaks at 11pm, there is no support line. It is you.
-- **Convenience.** Cloud apps are more polished. Self-hosted apps are good, but you trade polish for control and privacy.
+If you value maintenance time in money, multiply your expected monthly hours by the rate you choose and show it separately. A hobby and a service for a business can have very different answers. Avoid assuming a fixed “one hour a month” for every setup.
 
-## When self-hosting is clearly worth it
+Compare recovery time, backup checks, availability, support and the features you use. One server and a single copy of data do not provide the same service as a well-maintained cloud offering. Equally, a subscription may not provide the control or portability you need.
 
-- You already pay for several subscriptions, especially cloud storage.
-- You have a growing photo or media library.
-- You care about privacy and data ownership.
-- You enjoy tinkering, so the "time cost" is partly a hobby.
+## Compare your own stack
 
-## When it is not worth it
+Use the [Self-Hosting Planner](/tools/selfhost-planner/) to establish a capacity target and add recurring quotes. Its total covers only the entered monthly items; hardware purchases and your time stay outside that total.
 
-- You only pay for one cheap service (self-hosting to save $5/month is rarely worth the hassle).
-- You need guaranteed uptime for something critical and can't maintain it.
-- You have zero interest in the maintenance side.
-
-## A hybrid approach works best
-
-Almost nobody cancels everything. The practical middle ground: keep the services you genuinely enjoy (music discovery, for example), and self-host the ones where storage and privacy matter most — namely **cloud storage and photo backup**, which is exactly where the subscription costs concentrate.
-
-## Work out your own numbers
-
-Which server you need depends on the apps you plan to run. Use the free [Self-Hosting Planner](/tools/selfhost-planner/) to estimate the RAM, CPU and disk for your stack and the monthly cost, before you commit to anything.
-
-## Bottom line
-
-Self-hosting saves real money over a few years, particularly against cloud storage and photo subscriptions. But it trades money for time, and it is not free of responsibility. If you already pay for a stack of subscriptions and do not mind occasional maintenance, it is one of the better value moves you can make.
+Read [the VPS buying checklist](/posts/best-cheap-vps-for-self-hosting-2026/) before signing up. A hybrid setup can be a sensible choice when only some services are worth replacing. Choose based on the full trade-off, then update the comparison with your actual bills and maintenance experience.
