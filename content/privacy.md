@@ -31,7 +31,7 @@ The site can save your light/dark theme preference in browser local storage. Hos
 
 ## Affiliate links
 
-Some pages contain affiliate links. If you click one and make a purchase, the merchant may record that the visit came from this site so we can be paid a commission. This does not affect the price you pay and does not give us access to your personal or payment information.
+Pages that use affiliate links will disclose them. If you follow such a link and make a purchase, the merchant may record that the visit came from this site so we can be paid a commission. This does not give us access to your payment information; any offer and its conditions are determined by the merchant.
 
 ## Your choices
 
