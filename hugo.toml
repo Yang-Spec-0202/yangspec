@@ -1,0 +1,50 @@
+baseURL = "https://yangspec.com/"
+locale = "en-US"
+title = "YangSpec"
+theme = "PaperMod"
+enableRobotsTXT = true
+paginate = 10
+summaryLength = 30
+
+[params]
+  description = "Free tools and honest guides for planning a self-hosted server — pick the right VPS, size your hardware, and stop overpaying for cloud subscriptions."
+  author = "YangSpec"
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  TocOpen = false
+  DateFormat = "January 2, 2006"
+  mainSections = ["posts"]
+
+  [params.homeInfoParams]
+    Title = "Plan your self-hosted server the smart way"
+    Content = "Stop guessing how much RAM your apps need or which VPS to buy. Use the free Self-Hosting Planner, then read the honest guides below."
+
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.highlight]
+    noClasses = false
+
+[menu]
+  [[menu.main]]
+    name = "Planner"
+    url = "/tools/selfhost-planner/"
+    weight = 1
+  [[menu.main]]
+    name = "Guides"
+    url = "/posts/"
+    weight = 2
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 3
+  [[menu.main]]
+    name = "Privacy"
+    url = "/privacy/"
+    weight = 4
+
+[outputs]
+  home = ["HTML", "RSS"]

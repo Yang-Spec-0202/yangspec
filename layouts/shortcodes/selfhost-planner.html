@@ -1,0 +1,33 @@
+<div class="shp">
+  <div class="shp-tool">
+    <h2>1. Pick the apps you want to run</h2>
+    <p class="shp-hint">Select everything you plan to self-host. Start small &mdash; you can always add later.</p>
+    <div class="shp-app-grid" id="appGrid"></div>
+    <div class="field-row">
+      <div>
+        <label class="field" for="users">Number of users</label>
+        <select id="users">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+      <div id="mediaWrap">
+        <label class="field" for="media">Media / photo storage (TB)</label>
+        <input type="number" id="media" min="0" step="0.5" value="0">
+      </div>
+      <div>
+        <label class="field" for="transcode">Hardware transcoding</label>
+        <label style="font-weight:400;font-size:0.9rem;display:flex;gap:8px;align-items:center;">
+          <input type="checkbox" id="transcode"> I need transcoding (Plex / Jellyfin)
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="result" id="result"></div>
+  <p class="shp-disclosure">Disclosure: some provider links above may become affiliate links. If you buy through them, this site may earn a small commission at no extra cost to you. Recommendations are based on public pricing and specs, not on commission size.</p>
+</div>
+<script src="{{ "js/planner.js" | relURL }}" defer></script>

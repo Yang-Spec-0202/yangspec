@@ -1,0 +1,44 @@
+---
+title: "Privacy Policy"
+date: 2026-10-04
+description: "How YangSpec handles data, cookies, advertising, and third-party services."
+---
+
+This privacy policy explains what information this website ("we", "us") collects and how it is used.
+
+## Information we collect
+
+YangSpec is a static website. We do not require accounts and we do not knowingly collect personal information from visitors beyond what is described below.
+
+- **Server logs.** Like any website, our hosting provider may record basic technical data such as your IP address, browser type, and the pages you visit. This is used for security and to keep the site running.
+- **Cookies and similar technologies.** We and third parties may use cookies to operate the site and to measure traffic.
+
+## Advertising
+
+We may use third-party advertising, including **Google AdSense**, to display ads. Google and its partners may use cookies (including the DoubleClick DART cookie) to serve ads based on your prior visits to this and other websites. You can learn about and opt out of personalised advertising at [Google Ads Settings](https://adssettings.google.com/) and [aboutads.info](https://www.aboutads.info/).
+
+## Analytics
+
+We may use privacy-respecting or third-party analytics to understand how the site is used. This helps us improve content and tools. Any analytics data is treated in aggregate.
+
+## Affiliate links
+
+Some pages contain affiliate links. If you click one and make a purchase, the merchant may record that the visit came from this site so we can be paid a commission. This does not affect the price you pay and does not give us access to your personal or payment information.
+
+## Your choices
+
+- You can block or delete cookies through your browser settings.
+- You can opt out of personalised advertising using the links above.
+- You can use the site's tools without providing any personal information.
+
+## Children's privacy
+
+This site is not directed at children, and we do not knowingly collect personal information from them.
+
+## Changes to this policy
+
+We may update this policy from time to time. Changes take effect when posted on this page.
+
+## Contact
+
+If you have questions about this policy, email **contact@yangspec.com**.
