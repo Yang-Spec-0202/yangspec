@@ -19,6 +19,11 @@ summaryLength = 30
   DateFormat = "January 2, 2006"
   mainSections = ["posts"]
 
+[params.assets]
+  favicon = "favicon.svg"
+  theme_color = "#213c35"
+  msapplication_TileColor = "#213c35"
+
 [markup]
   [markup.goldmark.renderer]
     unsafe = true

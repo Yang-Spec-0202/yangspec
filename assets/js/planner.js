@@ -19,6 +19,10 @@
   ];
   let current;
   let announceTimer;
+  let copyTimer;
+  let revision = 0;
+  let explanationOpen = false;
+  const copyButton = document.getElementById("copy-plan");
   const money = (value) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -52,6 +56,9 @@
     }, 300);
   }
   function update() {
+    revision += 1;
+    clearTimeout(copyTimer);
+    copyButton.textContent = "Copy plan";
     const input = read();
     current = model.estimate(data, input);
     const hasVideo = input.apps.some(
@@ -89,7 +96,7 @@
     result.replaceChildren();
     document.getElementById("copy-fallback").hidden = true;
     document.getElementById("plan-text").value = "";
-    document.getElementById("copy-plan").disabled = current.status !== "ready";
+    copyButton.disabled = current.status !== "ready";
     if (current.status === "invalid") {
       result.append(
         node("p", "result-state", "Check the highlighted inputs."),
@@ -136,7 +143,7 @@
     for (const [label, value, unit] of [
       ["Memory", current.ramGb, "GB"],
       ["Compute", current.cpu, "cores"],
-      ["Primary storage", model.storage(current.primaryGb), ""],
+      ["Primary storage", ...model.storage(current.primaryGb).split(" ")],
     ]) {
       const item = node("div", "metric");
       item.append(node("dt", "", label));
@@ -146,29 +153,36 @@
       metrics.append(item);
     }
     result.append(metrics);
-    const map = node("div", "workload-map");
-    const apps = node("div", "workload-apps");
-    current.picked.forEach((app) =>
-      apps.append(node("span", "workload-tag", app.name)),
-    );
-    map.append(
-      apps,
-      node("span", "workload-connector", "↓"),
+    const storage = node("section", "storage-explained");
+    storage.append(node("h3", "", "Where the storage goes"));
+    const bar = node("div", "storage-bar");
+    bar.setAttribute("aria-hidden", "true");
+    const parts = node("dl", "storage-parts");
+    current.storageParts
+      .filter((part) => part.gb > 0)
+      .forEach((part) => {
+        const segment = node("span", `storage-${part.id}`);
+        segment.style.flexBasis = `${(part.gb / current.primaryGb) * 100}%`;
+        bar.append(segment);
+        const row = node("div", `storage-${part.id}`);
+        row.append(
+          node("dt", "", part.label),
+          node("dd", "", model.storage(part.gb)),
+        );
+        parts.append(row);
+      });
+    storage.append(bar, parts);
+    const backup = node("p", "storage-backup");
+    backup.append(
+      node("strong", "", `${model.storage(current.backupGb)} separate backup`),
       node(
-        "p",
-        "workload-host",
-        current.needsHardware
-          ? "Host + compatible GPU / iGPU"
-          : "Your planned host",
-      ),
-      node("span", "workload-connector", "↓"),
-      node(
-        "p",
-        "workload-backup",
-        `${model.storage(current.backupGb)} backup · separate location`,
+        "span",
+        "",
+        "One full data copy, without spare space. Versions and retention need more.",
       ),
     );
-    result.append(map);
+    storage.append(backup);
+    result.append(storage);
     const warnings = [];
     if (current.oversized)
       warnings.push(
@@ -211,11 +225,20 @@
       "cost-total",
       current.subtotal == null ? "Add your quotes" : money(current.subtotal),
     );
+    total.classList.toggle("is-long", total.textContent.length > 16);
     if (current.subtotal != null)
       total.append(
         node("span", "", current.complete ? "/ month" : "known subtotal"),
       );
     costs.append(total);
+    const priced = current.lines.length - current.unknown.length;
+    const progress = node(
+      "p",
+      "quote-progress",
+      `${priced} of ${current.lines.length} cost items priced`,
+    );
+    progress.classList.toggle("is-complete", current.complete);
+    costs.append(progress);
     const list = node("dl", "cost-lines");
     current.lines.forEach((line) => {
       const row = node("div", "");
@@ -241,6 +264,10 @@
     );
     result.append(costs);
     const why = node("details", "result-details");
+    why.open = explanationOpen;
+    why.addEventListener("toggle", () => {
+      if (why.isConnected) explanationOpen = why.open;
+    });
     why.append(node("summary", "", "Why this size?"));
     why.append(
       node(
@@ -305,16 +332,27 @@
     for (const group of form.querySelectorAll("[data-group]"))
       group.open = group.dataset.group === "everyday";
     form.querySelector(".quote-panel").open = false;
+    explanationOpen = false;
     update();
   });
-  document.getElementById("copy-plan").addEventListener("click", async () => {
+  copyButton.addEventListener("click", async () => {
     if (current.status !== "ready") return;
+    const copiedRevision = revision;
+    const input = read();
     const text = [
       "YangSpec personal-use plan",
       `Apps: ${current.picked.map((app) => app.name).join(", ")}`,
       `Target: ${summary.textContent}`,
       `Backup: ${model.storage(current.backupGb)} for one full copy`,
-      `Playback: ${read().playback}; Immich ML: ${read().ml ? "on" : "off"}`,
+      ...current.storageParts
+        .filter((part) => part.gb > 0)
+        .map((part) => `${part.label}: ${model.storage(part.gb)}`),
+      ...(current.picked.some((app) => app.video)
+        ? [`Playback: ${input.playback}`]
+        : []),
+      ...(input.apps.includes("immich")
+        ? [`Immich ML: ${input.ml ? "on" : "off"}`]
+        : []),
       `Cost: ${current.subtotal == null ? "not quoted" : `${money(current.subtotal)} ${current.complete ? "per month" : "known monthly subtotal"}`}`,
       `Unquoted: ${current.unknown.join(", ") || "none"}`,
       `Model reviewed: ${data.reviewed}`,
@@ -323,13 +361,15 @@
     ].join("\n");
     try {
       await navigator.clipboard.writeText(text);
+      if (copiedRevision !== revision) return;
       announce("Plan copied to clipboard.");
-      const button = document.getElementById("copy-plan");
-      button.textContent = "Copied ✓";
-      setTimeout(() => {
-        button.textContent = "Copy plan";
+      copyButton.textContent = "Copied ✓";
+      clearTimeout(copyTimer);
+      copyTimer = setTimeout(() => {
+        copyButton.textContent = "Copy plan";
       }, 2000);
     } catch {
+      if (copiedRevision !== revision) return;
       const fallback = document.getElementById("copy-fallback");
       fallback.hidden = false;
       fallback.querySelector("textarea").value = text;

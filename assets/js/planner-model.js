@@ -80,6 +80,16 @@
     const usedGb = Math.ceil(appDiskGb + storageTb * 1000 + photoOverhead);
     const primaryGb = Math.ceil(usedGb * assumptions.storageHeadroom);
     const backupGb = usedGb;
+    const storageParts = [
+      { id: "library", label: "Your library / files", gb: storageTb * 1000 },
+      { id: "generated", label: "Immich generated files", gb: photoOverhead },
+      { id: "apps", label: "Apps & data allowance", gb: appDiskGb },
+      {
+        id: "spare",
+        label: "Spare capacity & rounding",
+        gb: primaryGb - storageTb * 1000 - photoOverhead - appDiskGb,
+      },
+    ];
     const video = picked.some((app) => app.video);
     const needsHardware = video && playback === "hardware";
     const softwareUnspecified = video && playback === "software";
@@ -137,6 +147,7 @@
       usedGb,
       primaryGb,
       backupGb,
+      storageParts,
       needsHardware,
       softwareUnspecified,
       oversized,
@@ -150,7 +161,7 @@
   function storage(gb) {
     return gb >= 1000
       ? `${(gb / 1000).toFixed(2).replace(/0+$/, "").replace(/\.$/, "")} TB`
-      : `${gb} GB`;
+      : `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(gb)} GB`;
   }
   return { estimate, storage };
 });

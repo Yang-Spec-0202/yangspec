@@ -108,6 +108,27 @@ test("more users or library capacity never decreases the capacity target", () =>
     assert.ok(many.primaryGb > one.primaryGb);
   }
 });
+test("the storage explanation reconciles with primary capacity, including fractional libraries", () => {
+  for (const storageTb of [0, 0.0001234, 0.25, 1, 2, 100]) {
+    for (const apps of [["vaultwarden"], ["immich"], ["jellyfin", "immich"]]) {
+      const result = plan({ apps, storageTb });
+      const sum = result.storageParts.reduce(
+        (total, part) => total + part.gb,
+        0,
+      );
+      assert.ok(Math.abs(sum - result.primaryGb) < 1e-8);
+      assert.ok(result.storageParts.every((part) => part.gb >= 0));
+      assert.equal(result.backupGb, result.usedGb);
+      assert.ok(result.primaryGb >= result.backupGb);
+    }
+  }
+  const photo = plan({ apps: ["immich"], storageTb: 1 });
+  assert.deepEqual(
+    photo.storageParts.map((part) => part.gb),
+    [1000, 200, 20, 244],
+  );
+  assert.equal(storage(0.12340000001), "0.12 GB");
+});
 test("catalog identifiers, presets and references are consistent", () => {
   assert.equal(new Set(data.apps.map((app) => app.id)).size, data.apps.length);
   for (const app of data.apps) {
