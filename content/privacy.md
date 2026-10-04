@@ -19,13 +19,15 @@ We may use third-party advertising, including **Google AdSense**, to display ads
 
 ## Analytics
 
-We may use privacy-respecting or third-party analytics to understand how the site is used. This helps us improve content and tools. Any analytics data is treated in aggregate.
+We use Cloudflare Web Analytics to measure page views and loading performance in aggregate. Its RUM setting excludes connections through Cloudflare's listed European data centers, including the EEA/EU, Switzerland and the UK. The analytics beacon does not use cookies or browser storage. See [Cloudflare's RUM documentation](https://developers.cloudflare.com/speed/observatory/rum-beacon/) for collection details and the regional exclusion list.
+
+We do not send planner app choices, capacity inputs or monthly quotes to this analytics service.
 
 ## Planner inputs and preferences
 
 App choices, capacity inputs and monthly quotes are calculated in your browser. The planner does not submit those values to a server, add them to a share URL or save them between visits. The Copy plan button writes a summary to your clipboard only when you choose it. Keep any copied plan private if it contains information you do not wish to share.
 
-The site can save your light/dark theme preference in browser local storage. Hosting and traffic analytics operate separately from the calculator; the current live site includes a Cloudflare Web Analytics script.
+The site can save your light/dark theme preference in browser local storage. Hosting and traffic analytics operate separately from the calculator.
 
 ## Affiliate links
 
