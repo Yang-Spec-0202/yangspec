@@ -62,4 +62,6 @@ Use the [Self-Hosting Planner](/tools/selfhost-planner/) to establish a capacity
 
 For a photo library, [the 2 TB Immich example](/posts/immich-2tb-hosting-cost/) separates original files, generated media, primary capacity and an independent backup. It includes a dated cloud storage quote and a home-cost worksheet; its complete hosting total remains unknown until the missing costs are quoted.
 
+For video, [the Jellyfin deployment guide](/posts/jellyfin-vps-or-home-server/) checks client playback, actual GPU access, remote upload and transfer before comparing hosts. Its 2 TB example separates media, application space and backup; it does not attach a small VPS headline price to that library or claim a measured stream count.
+
 Read [the VPS buying checklist](/posts/best-cheap-vps-for-self-hosting-2026/) before signing up. A hybrid setup can be a sensible choice when only some services are worth replacing. Choose based on the full trade-off, then update the comparison with your actual bills and maintenance experience.

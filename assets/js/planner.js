@@ -87,6 +87,11 @@
       "Read the Immich storage and cost guide",
       "/posts/immich-2tb-hosting-cost/",
     ];
+    const hasJellyfin = plan.picked.some((app) => app.id === "jellyfin");
+    const jellyfinLink = [
+      "Compare Jellyfin hosting and playback",
+      "/posts/jellyfin-vps-or-home-server/",
+    ];
     const hasLibrary =
       plan.storageTb > 0 ||
       plan.primaryGb > 80 ||
@@ -108,6 +113,7 @@
             ? "These CPU and RAM figures do not prove GPU access. Confirm the device, codecs, drivers and passthrough before buying."
             : "Confirm that your clients can play the original codecs without conversion before relying on this target.",
         links: [
+          ...(hasJellyfin ? [jellyfinLink] : []),
           ["Read the playback checks", "#playback-changes-the-decision"],
           ...(hasLibrary ? [storageLink] : []),
           ...(hasImmich ? [immichLink] : []),
@@ -496,6 +502,15 @@
       ...(current.picked.some((app) => app.video)
         ? [`Playback: ${input.playback}`]
         : []),
+      ...(current.softwareUnspecified
+        ? [
+            "Software transcoding: not sized; the base CPU figure is not transcode capacity. Test codecs, resolution, tone mapping and simultaneous streams.",
+          ]
+        : current.needsHardware
+          ? [
+              "Hardware transcoding: GPU access and compatibility are unverified. Confirm the device, codecs, drivers and passthrough; CPU/RAM figures do not establish support.",
+            ]
+          : []),
       ...(input.apps.includes("immich")
         ? [`Immich ML: ${input.ml ? "on" : "off"}`]
         : []),

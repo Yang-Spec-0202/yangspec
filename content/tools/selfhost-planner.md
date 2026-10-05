@@ -41,6 +41,8 @@ An empty field is **unknown**, not zero. Until all cost items are priced, the to
 
 Read [Jellyfin's hardware selection guide](https://jellyfin.org/docs/general/administration/hardware-selection/) before choosing a media host. Immich ML on amd64 also requires a compatible CPU instruction set in its current v3 guidance.
 
+For Jellyfin, use [our home-server and VPS decision guide](/posts/jellyfin-vps-or-home-server/) to distinguish Direct Play, audio conversion and video transcoding. It includes client, GPU-access and upload checks plus the existing [2 TB media example](/tools/selfhost-planner/?preset=media). Its base CPU allowance is not a transcode benchmark; complete host costs remain unknown without your quotes.
+
 <h2 id="next-step">Take the plan to a real quote.</h2>
 
 For light personal apps within the small-capacity scope, use our [2 GB / 4 GB VPS comparison](/posts/best-cheap-vps-for-self-hosting-2026/) to check location, usable disk, network limits, billing and backup options. For photos or larger file libraries, start with [storage and recovery](#storage-and-a-real-backup); for video, start with [playback compatibility](#playback-changes-the-decision). Compare a home server or dedicated/storage-focused host where needed. Workloads outside the starter range need separate sizing. We do not claim that an unverified provider package matches your plan.
