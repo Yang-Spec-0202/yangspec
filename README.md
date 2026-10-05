@@ -2,6 +2,10 @@
 
 A Hugo / PaperMod site with a browser-local self-hosting planner. Production uses Cloudflare Pages; a push to `main` deploys the live site. Use a branch and a Pages preview to review changes.
 
+## Agent handoff
+
+Read [AGENTS.md](AGENTS.md) before editing. The local planning workspace is `E:\Projects\money`: `STATE.json` indexes current evidence, `OPTIMIZATION-PLAN.md` holds sequenced task cards, and `RUNBOOK.md` contains exact build/review commands. Its `content/` directory is a read-only production mirror; this repository is the source to edit. If that workspace is unavailable, use the explicit user task and this README, and report missing planning evidence instead of inventing current account or release status.
+
 ## Local development
 
 Use Hugo Extended 0.167.0 or the production build's pinned version, then run `hugo server`. PaperMod is checked into `themes/PaperMod` as ordinary tracked files; there is no theme submodule to initialize. The site needs no frontend package installation.

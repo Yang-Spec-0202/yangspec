@@ -3,7 +3,7 @@ title: "How Much RAM Do You Need to Self-Host?"
 shortTitle: "Give your apps room to breathe."
 guideLabel: "CAPACITY / FIELD GUIDE"
 date: 2026-10-04
-lastmod: 2026-10-04
+lastmod: 2026-10-05
 description: "Separate official requirements from planning allowances, leave room for background jobs, and choose a sensible starting capacity."
 summary: "How to separate official requirements, service allowances and headroom when sizing your own server."
 tags: ["RAM", "self-hosting", "hardware"]
@@ -49,6 +49,8 @@ The photo preset uses an **8 GB / 4-core target** for Immich with ML enabled, fo
 A quiet dashboard is not the same as OCR, a large photo upload, a backup and media conversion happening together. Estimate a representative busy period, limit or schedule heavy work where practical, then monitor memory pressure and actual application behavior.
 
 CPU cores on shared hosting also vary in available performance. A hardware transcode requirement needs an appropriate device and access to it; buying extra RAM is not a substitute.
+
+For Jellyfin, [compare a home server, CPU VPS and a host with verified GPU access](/posts/jellyfin-vps-or-home-server/). Check your actual clients, subtitles, HDR conversion and concurrent streams first. The planner's base CPU figure does not size software video transcoding.
 
 ## A capacity plan is only the first step
 

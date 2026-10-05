@@ -1,7 +1,7 @@
 ---
 title: "Self-Hosting Planner: Size Your Apps, Storage and Budget"
 date: 2026-10-04
-lastmod: 2026-10-04
+lastmod: 2026-10-05
 description: "Choose your apps, plan capacity and a separate backup, then add real quotes to understand the whole monthly cost."
 planner: true
 ShowToc: false
@@ -41,9 +41,13 @@ An empty field is **unknown**, not zero. Until all cost items are priced, the to
 
 Read [Jellyfin's hardware selection guide](https://jellyfin.org/docs/general/administration/hardware-selection/) before choosing a media host. Immich ML on amd64 also requires a compatible CPU instruction set in its current v3 guidance.
 
+For Jellyfin, use [our home-server and VPS decision guide](/posts/jellyfin-vps-or-home-server/) to distinguish Direct Play, audio conversion and video transcoding. It includes client, GPU-access and upload checks plus the existing [2 TB media example](/tools/selfhost-planner/?preset=media). Its base CPU allowance is not a transcode benchmark; complete host costs remain unknown without your quotes.
+
 <h2 id="next-step">Take the plan to a real quote.</h2>
 
-Use our [VPS buying checklist](/posts/best-cheap-vps-for-self-hosting-2026/) to compare location, usable disk, network limits, renewals and backup options. For large libraries or transcoding, compare a home server or dedicated/storage-focused host as well. We do not claim that an unverified provider package matches your plan.
+For light personal apps within the small-capacity scope, use our [2 GB / 4 GB VPS comparison](/posts/best-cheap-vps-for-self-hosting-2026/) to check location, usable disk, network limits, billing and backup options. For photos or larger file libraries, start with [storage and recovery](#storage-and-a-real-backup); for video, start with [playback compatibility](#playback-changes-the-decision). Compare a home server or dedicated/storage-focused host where needed. Workloads outside the starter range need separate sizing. We do not claim that an unverified provider package matches your plan.
+
+For Immich, read [the 2 TB storage and cost example](/posts/immich-2tb-hosting-cost/) or [open that capacity scenario](/tools/selfhost-planner/?preset=photos-2tb). It compares home and cloud storage with a separate backup; adjust the example to your library. The Photos button above keeps its original 1 TB starting point.
 
 You can also read [the RAM guide](/posts/how-much-ram-to-self-host/) and [the full-cost comparison](/posts/self-hosting-vs-cloud-cost/). Some links elsewhere on the site may earn a commission; commission does not enter this calculator's capacity or cost formulas.
 

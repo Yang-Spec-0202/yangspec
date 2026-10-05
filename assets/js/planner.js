@@ -7,6 +7,7 @@
   const form = root.querySelector("form");
   const status = document.getElementById("planner-status");
   const result = document.getElementById("result-content");
+  const nextStep = document.getElementById("planner-next-step");
   const summary = document.getElementById("result-summary");
   const quoteFields = [
     "server",
@@ -56,12 +57,127 @@
       status.textContent = text;
     }, 300);
   }
+  function nextStepFor(plan) {
+    if (plan.status !== "ready")
+      return {
+        title:
+          plan.status === "empty"
+            ? "Start with your apps"
+            : "Fix the inputs first",
+        text:
+          plan.status === "empty"
+            ? "Choose a starting point or an app before comparing hosts. No package has been matched."
+            : "Correct the highlighted fields before using a capacity estimate or comparing hosts.",
+        links: [["Go to your choices", "#planner-inputs"]],
+      };
+    if (plan.oversized)
+      return {
+        title: "Size this workload separately",
+        text: "This exceeds the starter range. Measure your workload and check each app's requirements; the small VPS comparison is not a match for this plan.",
+        links: [
+          ["Read the sizing limits", "/posts/how-much-ram-to-self-host/"],
+        ],
+      };
+    const storageLink = [
+      "Plan storage and backups",
+      "#storage-and-a-real-backup",
+    ];
+    const hasImmich = plan.picked.some((app) => app.id === "immich");
+    const immichLink = [
+      "Read the Immich storage and cost guide",
+      "/posts/immich-2tb-hosting-cost/",
+    ];
+    const hasJellyfin = plan.picked.some((app) => app.id === "jellyfin");
+    const jellyfinLink = [
+      "Compare Jellyfin hosting and playback",
+      "/posts/jellyfin-vps-or-home-server/",
+    ];
+    const hasLibrary =
+      plan.storageTb > 0 ||
+      plan.primaryGb > 80 ||
+      plan.picked.some((app) => app.photo);
+    if (
+      plan.softwareUnspecified ||
+      plan.needsHardware ||
+      plan.picked.some((app) => app.video)
+    )
+      return {
+        title: plan.softwareUnspecified
+          ? "Test software transcoding first"
+          : plan.needsHardware
+            ? "Verify the video device first"
+            : "Check Direct Play compatibility",
+        text: plan.softwareUnspecified
+          ? "CPU transcoding capacity is not estimated. Test your codecs, resolution and simultaneous streams before choosing a host."
+          : plan.needsHardware
+            ? "These CPU and RAM figures do not prove GPU access. Confirm the device, codecs, drivers and passthrough before buying."
+            : "Confirm that your clients can play the original codecs without conversion before relying on this target.",
+        links: [
+          ...(hasJellyfin ? [jellyfinLink] : []),
+          ["Read the playback checks", "#playback-changes-the-decision"],
+          ...(hasLibrary ? [storageLink] : []),
+          ...(hasImmich ? [immichLink] : []),
+        ],
+      };
+    if (plan.picked.some((app) => app.photo) || plan.primaryGb > 80)
+      return {
+        title: "Plan storage and recovery first",
+        text: hasImmich
+          ? "Use the Immich guide to compare a home host, attached cloud storage and an independent backup. Its worked example is a 2 TB library; adjust capacity and quotes for your plan. No provider package has been verified as a match."
+          : "Compare usable primary storage and a separate backup, including generated files and restore needs. A small VPS disk is not automatically enough; compare attached storage, a storage-focused host and a home server.",
+        links: [
+          ...(hasImmich ? [immichLink] : []),
+          storageLink,
+          ["Compare the full cost", "/posts/self-hosting-vs-cloud-cost/"],
+        ],
+      };
+    // A conservative guide scope, not a package match or provider ranking.
+    if (
+      plan.ramGb <= 4 &&
+      plan.cpu <= 2 &&
+      plan.picked.every((app) => app.ramMb <= 512 && app.group !== "advanced")
+    )
+      return {
+        title: "Compare small VPS plans",
+        text: "This light-app estimate is within the guide's small-capacity scope. Check the actual workload, usable disk, region and billing terms. No provider package has been verified as a match. Compare the whole bill, including storage, backup and other costs.",
+        links: [
+          [
+            "Read the 2 GB / 4 GB comparison",
+            "/posts/best-cheap-vps-for-self-hosting-2026/",
+          ],
+        ],
+      };
+    return {
+      title: "Check the workload before choosing a host",
+      text: "This stack is outside the light-app comparison's scope. Review each app's requirements and measure busy periods; a capacity estimate alone does not establish provider compatibility.",
+      links: [
+        ["Read the RAM and sizing guide", "/posts/how-much-ram-to-self-host/"],
+      ],
+    };
+  }
+  function renderNextStep(step) {
+    const heading = node("h3", "", step.title);
+    heading.id = "next-step-title";
+    const links = node("div", "next-step-links");
+    step.links.forEach(([label, href]) => {
+      const link = node("a", "next-step-link", label);
+      link.href = href;
+      if (href === "#planner-inputs")
+        link.addEventListener("click", () =>
+          form.focus({ preventScroll: true }),
+        );
+      links.append(link);
+    });
+    nextStep.replaceChildren(heading, node("p", "", step.text), links);
+  }
   function update(input = read()) {
     lastInputState = JSON.stringify(input);
     revision += 1;
     clearTimeout(copyTimer);
     copyButton.textContent = "Copy plan";
     current = model.estimate(data, input);
+    const step = nextStepFor(current);
+    renderNextStep(step);
     const hasVideo = input.apps.some(
       (id) => data.apps.find((app) => app.id === id)?.video,
     );
@@ -108,7 +224,9 @@
         ),
       );
       summary.textContent = "Check your inputs";
-      announce("Plan not updated. Check the highlighted inputs.");
+      announce(
+        "Plan not updated. Check the highlighted inputs. Next step: fix the inputs first.",
+      );
       return;
     }
     if (current.status === "empty") {
@@ -126,7 +244,9 @@
       );
       result.append(empty);
       summary.textContent = "Choose an app to begin";
-      announce("No apps selected. Choose an app to begin.");
+      announce(
+        "No apps selected. Next step: choose a starting point or an app before comparing hosts.",
+      );
       return;
     }
     result.append(
@@ -327,16 +447,18 @@
     result.append(why);
     summary.textContent = `${current.ramGb} GB · ${current.cpu} cores · ${model.storage(current.primaryGb)}`;
     announce(
-      `Plan updated for ${current.picked.length} app${current.picked.length === 1 ? "" : "s"}: ${summary.textContent}. ${current.oversized ? "Custom sizing needed." : ""} ${current.subtotal == null ? "Monthly costs not quoted." : `${current.complete ? "Monthly total" : "Partial monthly cost"} ${money(current.subtotal)}.`} ${current.complete ? "" : `Total monthly cost unknown; ${current.unknown.length} prices still missing.`}`,
+      `Plan updated for ${current.picked.length} app${current.picked.length === 1 ? "" : "s"}: ${summary.textContent}. ${current.oversized ? "Custom sizing needed." : ""} ${current.subtotal == null ? "Monthly costs not quoted." : `${current.complete ? "Monthly total" : "Partial monthly cost"} ${money(current.subtotal)}.`} ${current.complete ? "" : `Total monthly cost unknown; ${current.unknown.length} prices still missing.`} Next step: ${step.title}.`,
     );
   }
   function preset(id) {
-    const p = data.presets.find((item) => item.id === id);
+    const p = data.presets.find(
+      (item) => item.id === (id === "photos-2tb" ? "photos" : id),
+    );
     if (!p) return;
     form.querySelectorAll("[data-app]").forEach((el) => {
       el.checked = p.apps.includes(el.value);
     });
-    form.elements.storageTb.value = p.storageTb;
+    form.elements.storageTb.value = id === "photos-2tb" ? 2 : p.storageTb;
     form.elements.users.value = "1";
     form.elements.playback.value = "direct";
     form.elements.ml.checked = true;
@@ -380,6 +502,15 @@
       ...(current.picked.some((app) => app.video)
         ? [`Playback: ${input.playback}`]
         : []),
+      ...(current.softwareUnspecified
+        ? [
+            "Software transcoding: not sized; the base CPU figure is not transcode capacity. Test codecs, resolution, tone mapping and simultaneous streams.",
+          ]
+        : current.needsHardware
+          ? [
+              "Hardware transcoding: GPU access and compatibility are unverified. Confirm the device, codecs, drivers and passthrough; CPU/RAM figures do not establish support.",
+            ]
+          : []),
       ...(input.apps.includes("immich")
         ? [`Immich ML: ${input.ml ? "on" : "off"}`]
         : []),
