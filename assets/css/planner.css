@@ -632,6 +632,10 @@
   line-height: 1.7;
   margin-bottom: 20px;
 }
+/* Closing animations must not leave hidden controls in the tab order. */
+.planner details:not([open]) > :not(summary) {
+  display: none;
+}
 .result-details summary {
   min-height: 46px;
   padding: 12px 0;
@@ -669,6 +673,31 @@
   color: var(--secondary);
   line-height: 1.7;
   margin: 16px 0 0;
+}
+.result-next-step {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  color: var(--primary);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.result-next-step h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+.result-next-step p {
+  margin: 0 0 8px;
+}
+.next-step-link {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .result-state {
   font: 29px var(--display);

@@ -1,7 +1,7 @@
 ---
 title: "Self-Hosting Planner: Size Your Apps, Storage and Budget"
 date: 2026-10-04
-lastmod: 2026-10-04
+lastmod: 2026-10-05
 description: "Choose your apps, plan capacity and a separate backup, then add real quotes to understand the whole monthly cost."
 planner: true
 ShowToc: false
@@ -43,7 +43,7 @@ Read [Jellyfin's hardware selection guide](https://jellyfin.org/docs/general/adm
 
 <h2 id="next-step">Take the plan to a real quote.</h2>
 
-Use our [VPS buying checklist](/posts/best-cheap-vps-for-self-hosting-2026/) to compare location, usable disk, network limits, renewals and backup options. For large libraries or transcoding, compare a home server or dedicated/storage-focused host as well. We do not claim that an unverified provider package matches your plan.
+For light personal apps within the small-capacity scope, use our [2 GB / 4 GB VPS comparison](/posts/best-cheap-vps-for-self-hosting-2026/) to check location, usable disk, network limits, billing and backup options. For photos or larger file libraries, start with [storage and recovery](#storage-and-a-real-backup); for video, start with [playback compatibility](#playback-changes-the-decision). Compare a home server or dedicated/storage-focused host where needed. Workloads outside the starter range need separate sizing. We do not claim that an unverified provider package matches your plan.
 
 You can also read [the RAM guide](/posts/how-much-ram-to-self-host/) and [the full-cost comparison](/posts/self-hosting-vs-cloud-cost/). Some links elsewhere on the site may earn a commission; commission does not enter this calculator's capacity or cost formulas.
 
