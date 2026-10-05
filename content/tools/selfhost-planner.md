@@ -45,6 +45,8 @@ Read [Jellyfin's hardware selection guide](https://jellyfin.org/docs/general/adm
 
 For light personal apps within the small-capacity scope, use our [2 GB / 4 GB VPS comparison](/posts/best-cheap-vps-for-self-hosting-2026/) to check location, usable disk, network limits, billing and backup options. For photos or larger file libraries, start with [storage and recovery](#storage-and-a-real-backup); for video, start with [playback compatibility](#playback-changes-the-decision). Compare a home server or dedicated/storage-focused host where needed. Workloads outside the starter range need separate sizing. We do not claim that an unverified provider package matches your plan.
 
+For Immich, read [the 2 TB storage and cost example](/posts/immich-2tb-hosting-cost/) or [open that capacity scenario](/tools/selfhost-planner/?preset=photos-2tb). It compares home and cloud storage with a separate backup; adjust the example to your library. The Photos button above keeps its original 1 TB starting point.
+
 You can also read [the RAM guide](/posts/how-much-ram-to-self-host/) and [the full-cost comparison](/posts/self-hosting-vs-cloud-cost/). Some links elsewhere on the site may earn a commission; commission does not enter this calculator's capacity or cost formulas.
 
 Model version 1.0 · reviewed October 4, 2026. Deployment references explain how an app is hosted; they do not validate every allowance. We have not benchmarked these workloads.

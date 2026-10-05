@@ -3,7 +3,7 @@ title: "Self-Hosting vs Cloud Subscriptions: Compare the Whole Cost"
 shortTitle: "The server is only part of the bill."
 guideLabel: "COST / FIELD GUIDE"
 date: 2026-10-04
-lastmod: 2026-10-04
+lastmod: 2026-10-05
 description: "Count storage, backups, electricity and your time before deciding whether self-hosting is the better deal."
 summary: "A transparent cost worksheet for comparing a VPS, home server and the subscriptions you would actually replace."
 tags: ["self-hosting", "cost", "cloud"]
@@ -59,5 +59,7 @@ Compare recovery time, backup checks, availability, support and the features you
 ## Compare your own stack
 
 Use the [Self-Hosting Planner](/tools/selfhost-planner/) to establish a capacity target and add recurring quotes. Its total covers only the entered monthly items; hardware purchases and your time stay outside that total.
+
+For a photo library, [the 2 TB Immich example](/posts/immich-2tb-hosting-cost/) separates original files, generated media, primary capacity and an independent backup. It includes a dated cloud storage quote and a home-cost worksheet; its complete hosting total remains unknown until the missing costs are quoted.
 
 Read [the VPS buying checklist](/posts/best-cheap-vps-for-self-hosting-2026/) before signing up. A hybrid setup can be a sensible choice when only some services are worth replacing. Choose based on the full trade-off, then update the comparison with your actual bills and maintenance experience.

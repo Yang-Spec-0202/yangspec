@@ -82,6 +82,11 @@
       "Plan storage and backups",
       "#storage-and-a-real-backup",
     ];
+    const hasImmich = plan.picked.some((app) => app.id === "immich");
+    const immichLink = [
+      "Read the Immich storage and cost guide",
+      "/posts/immich-2tb-hosting-cost/",
+    ];
     const hasLibrary =
       plan.storageTb > 0 ||
       plan.primaryGb > 80 ||
@@ -105,13 +110,17 @@
         links: [
           ["Read the playback checks", "#playback-changes-the-decision"],
           ...(hasLibrary ? [storageLink] : []),
+          ...(hasImmich ? [immichLink] : []),
         ],
       };
     if (plan.picked.some((app) => app.photo) || plan.primaryGb > 80)
       return {
         title: "Plan storage and recovery first",
-        text: "Compare usable primary storage and a separate backup, including generated files and restore needs. A small VPS disk is not automatically enough; compare attached storage, a storage-focused host and a home server.",
+        text: hasImmich
+          ? "Use the Immich guide to compare a home host, attached cloud storage and an independent backup. Its worked example is a 2 TB library; adjust capacity and quotes for your plan. No provider package has been verified as a match."
+          : "Compare usable primary storage and a separate backup, including generated files and restore needs. A small VPS disk is not automatically enough; compare attached storage, a storage-focused host and a home server.",
         links: [
+          ...(hasImmich ? [immichLink] : []),
           storageLink,
           ["Compare the full cost", "/posts/self-hosting-vs-cloud-cost/"],
         ],
@@ -436,12 +445,14 @@
     );
   }
   function preset(id) {
-    const p = data.presets.find((item) => item.id === id);
+    const p = data.presets.find(
+      (item) => item.id === (id === "photos-2tb" ? "photos" : id),
+    );
     if (!p) return;
     form.querySelectorAll("[data-app]").forEach((el) => {
       el.checked = p.apps.includes(el.value);
     });
-    form.elements.storageTb.value = p.storageTb;
+    form.elements.storageTb.value = id === "photos-2tb" ? 2 : p.storageTb;
     form.elements.users.value = "1";
     form.elements.playback.value = "direct";
     form.elements.ml.checked = true;
