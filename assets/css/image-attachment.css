@@ -1,0 +1,257 @@
+.attachment-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 32px 0 64px;
+}
+.attachment-heading {
+  max-width: 760px;
+  margin-bottom: 36px;
+}
+.attachment-heading h1 {
+  font: 600 clamp(2.25rem, 5vw, 4rem)/1.1 var(--display);
+  letter-spacing: -0.03em;
+  margin: 18px 0;
+}
+.attachment-heading h1 em {
+  color: var(--accent);
+  font-weight: 400;
+}
+.attachment-heading > p {
+  max-width: 680px;
+}
+.attachment-content h2 {
+  font: 600 1.55rem/1.3 var(--display);
+  margin: 0 0 12px;
+}
+.attachment-content h3 {
+  font-size: 1.05rem;
+  margin: 0 0 8px;
+}
+.attachment-content > h2 {
+  margin-top: 40px;
+}
+.attachment-content > p {
+  max-width: 760px;
+  margin: 14px 0;
+}
+.attachment-content > ul {
+  padding-left: 24px;
+}
+.attachment-content > ul li {
+  margin-bottom: 8px;
+}
+.attachment-content > p a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.attachment-app {
+  padding: 28px;
+  border: 1px solid var(--border);
+  background: var(--entry);
+}
+.attachment-app [hidden] {
+  display: none !important;
+}
+.attachment-step {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+.attachment-step p {
+  margin: 0;
+}
+.attachment-number {
+  font: 600 14px/1.4 var(--mono);
+  color: var(--accent);
+  margin-right: 8px;
+}
+.attachment-help {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--secondary);
+  margin: 10px 0 16px;
+}
+.attachment-file-label,
+.attachment-app label:not(.attachment-check) {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.attachment-app input:not([type="checkbox"]),
+.attachment-app select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid var(--secondary);
+  border-radius: 3px;
+  color: var(--primary);
+  background: var(--theme);
+}
+.attachment-app input[type="file"] {
+  white-space: normal;
+  overflow: hidden;
+  font-size: 15px;
+}
+.attachment-app input::file-selector-button {
+  margin-right: 12px;
+  padding: 8px;
+  font: inherit;
+  color: var(--primary);
+  background: var(--green-wash);
+  border: 1px solid var(--secondary);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.attachment-app input::placeholder {
+  color: var(--secondary);
+  opacity: 1;
+}
+.attachment-app fieldset {
+  min-width: 0;
+  margin: 28px 0 0;
+  padding: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+.attachment-app legend {
+  font: 600 1.55rem/1.3 var(--display);
+  padding-right: 16px;
+}
+.attachment-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.attachment-fields > div {
+  min-width: 0;
+}
+.attachment-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  margin-top: 24px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.attachment-check input {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+}
+.attachment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+.attachment-app .button,
+.attachment-secondary {
+  min-height: 48px;
+  padding: 12px 18px;
+  white-space: normal;
+  text-align: center;
+}
+.attachment-secondary {
+  border: 1px solid var(--secondary);
+  border-radius: 3px;
+  background: var(--theme);
+  color: var(--primary);
+}
+.attachment-app button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+.attachment-preview {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--green-wash);
+}
+.attachment-preview p,
+.attachment-result-details {
+  font: 14px/1.7 var(--mono);
+  overflow-wrap: anywhere;
+}
+.attachment-image-link {
+  display: block;
+  max-width: 100%;
+}
+.attachment-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  width: auto;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+}
+.attachment-output {
+  display: block;
+  max-width: 100%;
+  max-height: 520px;
+  width: auto;
+  height: auto;
+  margin: 20px auto;
+  object-fit: contain;
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #ddd 25%, transparent 25%),
+    linear-gradient(-45deg, #ddd 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ddd 75%),
+    linear-gradient(-45deg, transparent 75%, #ddd 75%);
+  background-size: 20px 20px;
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0;
+}
+#attachment-status {
+  min-height: 28px;
+  margin: 24px 0 0;
+  color: var(--secondary);
+}
+.attachment-error {
+  margin: 24px 0 0;
+  padding: 16px;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-wash);
+  color: var(--primary);
+}
+.attachment-result {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+#attachment-outcome {
+  font-weight: 600;
+  color: var(--primary);
+}
+#attachment-outcome.attachment-warning {
+  color: var(--accent);
+}
+@media (max-width: 600px) {
+  .attachment-page {
+    padding-top: 20px;
+  }
+  .attachment-app {
+    padding: 18px 14px;
+  }
+  .attachment-fields {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .attachment-actions > * {
+    width: 100%;
+  }
+  .attachment-preview {
+    padding: 12px;
+  }
+  .attachment-step {
+    gap: 8px;
+  }
+}

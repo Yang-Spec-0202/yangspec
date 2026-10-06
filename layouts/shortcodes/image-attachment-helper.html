@@ -1,0 +1,40 @@
+<section id="attachment-helper" class="attachment-app" aria-label="Prepare an image attachment" aria-busy="false">
+  <noscript><p>This tool needs JavaScript to process images in your browser.</p></noscript>
+  <form id="attachment-form" novalidate>
+    <div class="attachment-step"><span class="attachment-number" aria-hidden="true">01</span><div><h2>Choose your image</h2><p>One still JPG or PNG. Up to 20 MB and 24 megapixels; each side up to 8192 px.</p></div></div>
+    <label class="attachment-file-label" for="attachment-file">Image file</label>
+    <input id="attachment-file" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-describedby="attachment-local">
+    <p id="attachment-local" class="attachment-help">Your image is processed on this device. No account or upload needed. Standard page visit and performance analytics may run; file contents, names and settings are not sent.</p>
+    <div id="attachment-source" class="attachment-preview" hidden><h3>Original</h3><p id="attachment-source-details"></p><img id="attachment-before" alt="Your original image" decoding="async"></div>
+    <fieldset id="attachment-options">
+      <legend><span class="attachment-number" aria-hidden="true">02</span> Set your requirements</legend>
+      <p class="attachment-help">Use the requirements from your email or upload form. The tool keeps proportions, does not crop or enlarge, and outputs at most 4096 px per side.</p>
+      <div class="attachment-fields">
+        <div><label for="attachment-format">Output format</label><select id="attachment-format" aria-describedby="attachment-format-help"><option value="image/jpeg">JPG — smaller photos, white background</option><option value="image/png">PNG — keeps transparency</option></select><p id="attachment-format-help" class="attachment-help">JPG is lossy. PNG size is reduced by resizing, with your permission.</p></div>
+        <div><label for="attachment-size">Maximum file size (KB)</label><input id="attachment-size" type="number" min="1" max="20000" step="1" inputmode="numeric" placeholder="e.g. 200" aria-describedby="attachment-size-help"><p id="attachment-size-help" class="attachment-help">1 KB = 1000 bytes. Blank = no size limit. Check whether your form uses KB or KiB (1024 bytes).</p></div>
+        <div><label for="attachment-width">Maximum width (px)</label><input id="attachment-width" type="number" min="1" max="4096" step="1" inputmode="numeric" placeholder="e.g. 1600" aria-describedby="attachment-dimension-help"></div>
+        <div><label for="attachment-height">Maximum height (px)</label><input id="attachment-height" type="number" min="1" max="4096" step="1" inputmode="numeric" placeholder="e.g. 1600" aria-describedby="attachment-dimension-help"></div>
+      </div>
+      <p id="attachment-dimension-help" class="attachment-help">These are maximum dimensions, not an exact crop. Blank = original size, capped at 4096 px per side.</p>
+      <label for="attachment-quality">Minimum JPG encoder quality</label><select id="attachment-quality" aria-describedby="attachment-quality-help"><option value="0.75">75/100 — more detail</option><option value="0.5" selected>50/100 — balanced</option><option value="0.3">30/100 — smaller file, less detail</option></select>
+      <p id="attachment-quality-help" class="attachment-help">The tool tries the highest setting that fits, up to 92/100. This setting is not a visual quality score. PNG ignores it.</p>
+      <label class="attachment-check"><input id="attachment-shrink" type="checkbox"><span>Allow smaller dimensions to meet the file size limit</span></label>
+      <p class="attachment-help">Optional: up to 8 smaller attempts, stopping at a longest side of 64 px. Small text may become unreadable. A limit may still be impossible.</p>
+    </fieldset>
+    <div class="attachment-actions"><button id="attachment-prepare" class="button button-primary" type="submit" disabled>Prepare attachment</button><button id="attachment-cancel" class="attachment-secondary" type="button" hidden>Cancel</button><button id="attachment-clear" class="attachment-secondary" type="button">Clear image & settings</button></div>
+  </form>
+  <p id="attachment-status" role="status" aria-live="polite" aria-atomic="true">Choose a JPG or PNG to begin.</p>
+  <p id="attachment-error" class="attachment-error" role="alert" tabindex="-1" hidden></p>
+  <section id="attachment-result" class="attachment-result" aria-labelledby="attachment-result-title" tabindex="-1" hidden>
+    <div class="attachment-step"><span class="attachment-number" aria-hidden="true">03</span><div><h2 id="attachment-result-title">Review your attachment</h2><p id="attachment-outcome"></p></div></div>
+    <p id="attachment-result-details" class="attachment-result-details"></p>
+    <img id="attachment-after" class="attachment-output" alt="Your prepared attachment" decoding="async">
+    <p id="attachment-quality-note" class="attachment-help"></p><p id="attachment-result-note"></p>
+    <a id="attachment-download" class="button button-primary">Download attachment</a>
+    <p class="attachment-help">Open the downloaded file before submitting. On mobile, your browser may show a save or share menu. Clear removes this page’s image references; it cannot remove files saved to your device.</p>
+  </section>
+</section>
+{{ $core := resources.Get "js/image-attachment-core.js" | minify | fingerprint }}
+{{ $ui := resources.Get "js/image-attachment.js" | minify | fingerprint }}
+<script src="{{ $core.RelPermalink }}" integrity="{{ $core.Data.Integrity }}" defer></script>
+<script src="{{ $ui.RelPermalink }}" integrity="{{ $ui.Data.Integrity }}" defer></script>
