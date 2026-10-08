@@ -2,11 +2,11 @@
 
 ## Current work
 
-The planning workspace `E:\Projects\money\STATE.json` is the current status index. Read `AGENTS.md`, then the task card in the roadmap named by STATE. The former optimization plan and PR #2 are paused. G02 adds a browser-local image attachment helper on its own branch from production; homepage/navigation and production release are G03. Do not merge the old candidate as part of this change.
+The planning workspace `E:\Projects\money\STATE.json` is the current status index. Read `AGENTS.md`, then the task card in the roadmap named by STATE. The former optimization plan and PR #2 are paused. G02/G03 add a browser-local image attachment helper, a homepage/toolbox entry and updated About/Privacy on their own branch from production. Do not merge the old candidate as part of this change. Preview and production identities are recorded separately in STATE.
 
 The new helper accepts a single static JPG/PNG, checks input resource limits before decoding, and validates encoded output before download. Its independent files are `assets/js/image-attachment-core.js`, `assets/js/image-attachment.js`, `assets/css/image-attachment.css` and `content/tools/image-attachment-helper.md`. Run `node --test tests/image-attachment-core.test.cjs` alongside the existing planner regression; real-browser output/download checks are recorded in the planning G02 report.
 
-A Hugo / PaperMod site with a browser-local self-hosting planner. Production uses Cloudflare Pages; a push to `main` deploys the live site. Use a branch and a Pages preview to review changes.
+A Hugo / PaperMod site with practical browser tools and self-hosting guides. Production uses Cloudflare Pages; a push to `main` deploys the live site. Use a branch and a Pages preview to review changes. The image tool can load a clearly labelled public sample from `static/samples/attachment-sample.png`; chosen user files never use that request path.
 
 ## Local development
 
@@ -16,7 +16,7 @@ Run `node --test tests/planner-model.test.cjs` (Node 22+), `node --check assets/
 
 ## Planner maintenance
 
-- `data/planner.json` is the shared catalog for the homepage examples and planner. Each app has a deployment/reference source and an explicit planning allowance. These are not benchmark results. Recheck official system guidance before changing documented floors, and update the review date.
+- `data/planner.json` is the catalog for the planner. Each app has a deployment/reference source and an explicit planning allowance. These are not benchmark results. Recheck official system guidance before changing documented floors, and update the review date.
 - `assets/js/planner-model.js` contains the calculation only; Node tests cover unknown versus zero prices, storage and backup costs, official floors, invalid inputs, playback limits and workloads above the starter range. The storage explanation uses the same returned components; their sum includes rounding and reconciles with primary capacity.
 - `assets/js/planner.js` renders accessible controls/results. Quote values stay in memory on this page, are not persisted or sent to a server, and only go to the clipboard after an explicit copy action.
 - `assets/css/extended/yangspec.css` controls the shared design; `assets/css/planner.css` loads on tools pages. Hugo fingerprints and minifies shipped CSS/JS. Keep the source readable.

@@ -2,6 +2,8 @@
   <noscript><p>This tool needs JavaScript to process images in your browser.</p></noscript>
   <form id="attachment-form" novalidate>
     <div class="attachment-step"><span class="attachment-number" aria-hidden="true">01</span><div><h2>Choose your image</h2><p>One still JPG or PNG. Up to 20 MB and 24 megapixels; each side up to 8192 px.</p></div></div>
+    <button id="attachment-sample" class="attachment-secondary" type="button" data-sample-url="{{ "/samples/attachment-sample.png" | relURL }}" aria-describedby="attachment-sample-help">Try a public example</button>
+    <p id="attachment-sample-help" class="attachment-help">A sample image from this site. No personal file required. Or choose your own image below.</p>
     <label class="attachment-file-label" for="attachment-file">Image file</label>
     <input id="attachment-file" type="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png" aria-describedby="attachment-local">
     <p id="attachment-local" class="attachment-help">Your image is processed on this device. No account or upload needed. Standard page visit and performance analytics may run; file contents, names and settings are not sent.</p>

@@ -5,10 +5,15 @@
   const core = window.ImageAttachmentCore;
   const $ = (id) => document.getElementById(id);
   const form = $("attachment-form"),
-    fileInput = $("attachment-file");
+    fileInput = $("attachment-file"),
+    sampleButton = $("attachment-sample");
   const status = $("attachment-status"),
     error = $("attachment-error");
   const canvas = document.createElement("canvas");
+  const supported =
+    !!core &&
+    typeof createImageBitmap === "function" &&
+    typeof canvas.toBlob === "function";
   let source = null,
     originalURL = null,
     resultURL = null,
@@ -31,6 +36,7 @@
     $("attachment-prepare").disabled = working || !source;
     $("attachment-cancel").hidden = !working;
     $("attachment-options").disabled = working;
+    sampleButton.disabled = working || !supported;
     root.setAttribute("aria-busy", String(working));
   }
   function stop() {
@@ -57,13 +63,13 @@
     error.hidden = true;
     error.textContent = "";
   }
-  async function loadFile() {
+  async function loadFile(file) {
     stop();
     clearResult();
     releaseSource();
     hideError();
-    const file = fileInput.files[0],
-      current = job;
+    controls(false);
+    const current = job;
     if (!file) {
       message("Choose a JPG or PNG to begin.");
       return;
@@ -330,7 +336,32 @@
       }
     }
   }
-  fileInput.addEventListener("change", loadFile);
+  fileInput.addEventListener("change", () => loadFile(fileInput.files[0]));
+  sampleButton.addEventListener("click", async () => {
+    stop();
+    clearResult();
+    releaseSource();
+    hideError();
+    fileInput.value = "";
+    const current = job;
+    controls(true);
+    message("Loading the public example from this site…");
+    try {
+      const response = await fetch(sampleButton.dataset.sampleUrl);
+      if (!response.ok) throw new Error("sample unavailable");
+      const sample = await response.blob();
+      if (current === job) await loadFile(sample);
+    } catch {
+      if (current === job) {
+        controls(false);
+        fail(
+          new Error(
+            "The public example could not be loaded. Try again, or choose a JPG or PNG from your device.",
+          ),
+        );
+      }
+    }
+  });
   form.addEventListener("submit", prepare);
   $("attachment-options").addEventListener("input", () => {
     clearResult();
@@ -379,12 +410,9 @@
     fileInput.value = "";
     message("Choose a JPG or PNG to begin.");
   });
-  if (
-    !core ||
-    typeof createImageBitmap !== "function" ||
-    typeof canvas.toBlob !== "function"
-  ) {
+  if (!supported) {
     fileInput.disabled = true;
+    sampleButton.disabled = true;
     fail(
       new Error(
         "This browser lacks the image features needed here. Try a current browser with Canvas and createImageBitmap support.",

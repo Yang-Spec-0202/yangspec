@@ -2,6 +2,10 @@
 {{ $css := resources.Get "css/planner.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
 {{- end -}}
+{{- if or .IsHome .Params.toolHub -}}
+{{ $css := resources.Get "css/product-entry.css" | minify | fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+{{- end -}}
 {{- if .Params.imageAttachment -}}
 {{ $css := resources.Get "css/image-attachment.css" | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">

@@ -171,6 +171,7 @@ button[aria-pressed="true"] {
 .site-menu a {
   display: flex;
   min-height: 44px;
+  min-width: 44px;
   align-items: center;
   font-size: 15px;
   font-weight: 600;
