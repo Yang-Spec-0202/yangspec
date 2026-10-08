@@ -1,7 +1,7 @@
 <header class="site-header">
   <nav class="site-nav" aria-label="Main navigation">
     <a class="brand" href="{{ "/" | relURL }}" aria-label="YangSpec home"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M2 4h7l5 8 5-8h7L17 18v7h-6v-7z" fill="currentColor"/></svg><span>YangSpec<span class="brand-dot">.</span></span></a>
-    <ul class="site-menu"><li><a href="{{ "/tools/selfhost-planner/" | relURL }}" {{ if .Params.planner }}aria-current="page"{{ end }}>Planner</a></li><li><a href="{{ "/posts/" | relURL }}" {{ if eq .Section "posts" }}aria-current="{{ if .IsPage }}true{{ else }}page{{ end }}"{{ end }}>Guides</a></li><li><a href="{{ "/about/" | relURL }}" {{ if eq .RelPermalink "/about/" }}aria-current="page"{{ end }}>About</a></li></ul>
+    <ul class="site-menu"><li><a href="{{ "/tools/" | relURL }}" {{ if eq .Section "tools" }}aria-current="{{ if .IsPage }}true{{ else }}page{{ end }}"{{ end }}>Tools</a></li><li><a href="{{ "/posts/" | relURL }}" {{ if eq .Section "posts" }}aria-current="{{ if .IsPage }}true{{ else }}page{{ end }}"{{ end }}>Guides</a></li><li><a href="{{ "/about/" | relURL }}" {{ if eq .RelPermalink "/about/" }}aria-current="page"{{ end }}>About</a></li></ul>
     <button class="theme-button" id="theme-toggle" type="button" aria-label="Toggle color theme"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button>
   </nav>
 </header>

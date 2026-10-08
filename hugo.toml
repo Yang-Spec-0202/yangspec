@@ -8,7 +8,7 @@ summaryLength = 30
 
 [params]
   defaultTheme = "light"
-  description = "Plan a self-hosted stack with transparent capacity estimates, separate backups and a complete monthly cost worksheet."
+  description = "Free browser tools with clear limits. Prepare a JPG or PNG attachment, or plan a self-hosted stack. No account required."
   author = "YangSpec"
   ShowReadingTime = true
   ShowShareButtons = false
@@ -32,8 +32,8 @@ summaryLength = 30
 
 [menu]
   [[menu.main]]
-    name = "Planner"
-    url = "/tools/selfhost-planner/"
+    name = "Tools"
+    url = "/tools/"
     weight = 1
   [[menu.main]]
     name = "Guides"

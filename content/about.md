@@ -1,28 +1,31 @@
 ---
 title: "About"
 date: 2026-10-04
-description: "What YangSpec is, who it is for, and how we approach recommendations."
+lastmod: 2026-10-08
+description: "Practical browser tools, self-hosting guides, and the limits behind YangSpec’s advice."
 ---
 
-YangSpec is an independent site about **self-hosting** — running your own services on a VPS, a home server, or a spare mini PC — instead of renting everything from the cloud.
+YangSpec is an independent collection of **practical browser tools and guides**. We help with a specific task, explain the limits, and make the next step clear.
 
-## Why this site exists
+## What you can use today
 
-Self-hosting advice online swings between two extremes: breathless "cancel everything and run a server!" hype, and forum threads assuming you already know what a reverse proxy is. This site aims for the middle: clear, practical guidance for people who want control over their data without turning it into a second job.
+- The free [Image Attachment Helper](/tools/image-attachment-helper/) resizes and compresses one still JPG or PNG for an email or upload form. Image processing happens on your device. It reports the actual output size, including when it cannot meet your limit. Review the downloaded image before submitting it.
+- The free [Self-Hosting Planner](/tools/selfhost-planner/) estimates capacity for a small server stack and provides a monthly cost worksheet. Our [self-hosting guides](/posts/) explain the assumptions and trade-offs.
 
-The centrepiece is the free [Self-Hosting Planner](/tools/selfhost-planner/), which answers the question everyone hits first: *how big a server do I actually need?*
+Both tools work without an account. See the [toolbox](/tools/) for their supported tasks and the [privacy policy](/privacy/) for how local processing differs from page analytics.
 
-## How we make recommendations
+## How we approach tools and advice
 
-- We distinguish verified official requirements, our planning allowances and actual measurements. The current calculator has not been benchmarked against these workloads.
-- Provider links are references for gathering current quotes, not a universal ranking or a claim that a package matches your result. The capacity model does not rank by commission.
-- Some links on this site may be affiliate links. If you buy through them, we may earn a small commission at no extra cost to you. This never changes the price you pay, and we say so on the pages that contain them.
-- We do not accept payment for a positive review, and we point out the downsides of the things we recommend.
+Tools describe the formats and limits they support. A file-size check does not guarantee acceptance by another service, and a readable preview does not replace checking the downloaded file at full size.
 
-## What this site is not
+For the planner, we distinguish official requirements, our planning allowances and actual measurements. Its capacity estimates have not been benchmarked against the listed workloads. Server quotes, storage, backups and other costs need to be checked for your own setup.
 
-We are not a hosting provider, and we do not sell server access. We publish information and tools. If you want a managed solution, a mainstream cloud provider is often the right choice — self-hosting is a trade-off, not a religion.
+Provider links are references for gathering information, not a universal ranking or a promise that a package fits your result. The planner does not rank providers or use affiliate commission in its calculations.
+
+## Funding and independence
+
+The current site has no advertising or active affiliate purchase links. If we add advertising, sponsorship or affiliate links, we will label the relationship where it applies and update the privacy information. We do not sell server access or offer a managed hosting service.
 
 ## Contact
 
-Questions, corrections, or suggestions are welcome. Email: **contact@yangspec.com**
+Questions, corrections, or suggestions are welcome. Email: **contact@yangspec.com**. Please describe the problem without sending a private image, account credentials or other sensitive information.
