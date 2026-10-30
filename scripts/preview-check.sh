@@ -101,7 +101,23 @@ else:
             if tag in {"script", "img", "iframe"} and values.get("src"):
                 self.urls.append(values["src"])
             if tag == "link" and values.get("href"):
-                self.urls.append(values["href"])
+                # canonical、alternate 这类关系只声明身份，浏览器不会请求；
+                # 只统计会真正取资源的 rel，避免把生产域名误报成第三方请求。
+                fetching = {
+                    "stylesheet",
+                    "icon",
+                    "apple-touch-icon",
+                    "mask-icon",
+                    "manifest",
+                    "preload",
+                    "modulepreload",
+                    "prefetch",
+                    "preconnect",
+                    "dns-prefetch",
+                }
+                rels = set((values.get("rel") or "").lower().split())
+                if rels & fetching:
+                    self.urls.append(values["href"])
 
     parser = Refs()
     parser.feed(body)
