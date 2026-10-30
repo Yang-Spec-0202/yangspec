@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ .Language.Locale | default "en" }}" data-theme="{{ site.Params.defaultTheme | default "auto" }}">
+<html lang="{{ .Language.Locale | default "zh-CN" }}" data-theme="{{ site.Params.defaultTheme | default "auto" }}">
 <head>
   {{- $head := partial "head.html" . -}}
   {{- /* Keep local icons on the current deployment; canonical metadata still uses the production URL. */ -}}
@@ -8,8 +8,8 @@
   {{- end -}}
   {{- $head | safeHTML -}}
 </head>
-<body class="{{ if .IsHome }}home-page{{ else if .Params.planner }}planner-page{{ else if .IsPage }}article-page{{ else }}index-page{{ end }}" id="top">
-  <a class="skip-link" href="#main-content">Skip to content</a>
+<body class="{{ if .IsHome }}home-page{{ else }}article-page{{ end }}" id="top">
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
   {{ partial "header.html" . }}
   <main class="main" id="main-content" tabindex="-1">{{ block "main" . }}{{ end }}</main>
   {{ partial "footer.html" . }}

@@ -1,22 +1,22 @@
 baseURL = "https://yangspec.com/"
-locale = "en-US"
+locale = "zh-CN"
 title = "YangSpec"
 theme = "PaperMod"
 enableRobotsTXT = true
-paginate = 10
 summaryLength = 30
 
 [params]
   defaultTheme = "light"
-  description = "Free browser tools with clear limits. Prepare a JPG or PNG attachment, or plan a self-hosted stack. No account required."
+  description = "YangSpec 的个人网站：近况、写下的东西，以及联系方式。"
   author = "YangSpec"
-  ShowReadingTime = true
+  city = "成都"
+  email = "yua81093@gmail.com"
+  ShowReadingTime = false
   ShowShareButtons = false
-  ShowBreadCrumbs = true
+  ShowBreadCrumbs = false
   ShowCodeCopyButtons = true
-  ShowToc = true
-  TocOpen = false
-  DateFormat = "January 2, 2006"
+  ShowToc = false
+  DateFormat = "2006 年 1 月 2 日"
   mainSections = ["posts"]
 
 [params.assets]
@@ -30,23 +30,19 @@ summaryLength = 30
   [markup.highlight]
     noClasses = false
 
+# 个人站没有分类与标签页，关掉默认的 taxonomies。
+[taxonomies]
+
+# 导航在这里维护：加一项就多一个入口。
 [menu]
   [[menu.main]]
-    name = "Tools"
-    url = "/tools/"
+    name = "关于"
+    url = "/about/"
     weight = 1
   [[menu.main]]
-    name = "Guides"
-    url = "/posts/"
+    name = "联系"
+    url = "/contact/"
     weight = 2
-  [[menu.main]]
-    name = "About"
-    url = "/about/"
-    weight = 3
-  [[menu.main]]
-    name = "Privacy"
-    url = "/privacy/"
-    weight = 4
 
 [outputs]
   home = ["HTML", "RSS"]

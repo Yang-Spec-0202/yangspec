@@ -1,32 +1,46 @@
 # YangSpec
 
-## Current work
+个人网站：YangSpec 在成都，用这个站点放近况、写下的东西和联系方式。中文为主，静态生成。
 
-The planning workspace `E:\Projects\money\STATE.json` is the current status index. Read `AGENTS.md`, then the task card in the roadmap named by STATE. The former optimization plan and PR #2 are paused. G02/G03 add a browser-local image attachment helper, a homepage/toolbox entry and updated About/Privacy on their own branch from production. Do not merge the old candidate as part of this change. Preview and production identities are recorded separately in STATE.
+站点：<https://yangspec.com/> · 托管在 Cloudflare Pages，push 到 `main` 即生产发布，所以改动先走分支和预览。
 
-The new helper accepts a single static JPG/PNG, checks input resource limits before decoding, and validates encoded output before download. Its independent files are `assets/js/image-attachment-core.js`, `assets/js/image-attachment.js`, `assets/css/image-attachment.css` and `content/tools/image-attachment-helper.md`. Run `node --test tests/image-attachment-core.test.cjs` alongside the existing planner regression; real-browser output/download checks are recorded in the planning G02 report.
+## 页面结构
 
-A Hugo / PaperMod site with practical browser tools and self-hosting guides. Production uses Cloudflare Pages; a push to `main` deploys the live site. Use a branch and a Pages preview to review changes. The image tool can load a clearly labelled public sample from `static/samples/attachment-sample.png`; chosen user files never use that request path.
+| 路径 | 内容 |
+| --- | --- |
+| `/` | 首页：署名、一句介绍、关于与站点说明 |
+| `/about/` | 关于：我是谁、这个站怎么来的、联系方式 |
+| `/contact/` | 联系：邮箱与几条边界 |
+| `/privacy/` | 隐私：本站处理哪些数据 |
 
-## Local development
+导航在 `hugo.toml` 的 `[menu.main]` 里维护，加一项就多一个入口。
 
-Use Hugo Extended 0.167.0 or the production build's pinned version, then run `hugo server`. PaperMod is checked into `themes/PaperMod` as ordinary tracked files; there is no theme submodule to initialize. The site needs no frontend package installation.
+## 本地开发
 
-Run `node --test tests/planner-model.test.cjs` (Node 22+), `node --check assets/js/planner.js`, and `hugo --environment production` before deploying. The inherited PaperMod `.Language.LanguageCode` deprecation warning does not prevent the current build; review theme compatibility before upgrading Hugo.
+需要 Hugo Extended 0.167.0（生产构建的版本）。PaperMod 以普通文件放在 `themes/PaperMod`，不是 submodule，不需要初始化主题，也不需要装前端依赖。
 
-## Planner maintenance
+```bash
+hugo server                 # 本地预览，默认 http://localhost:1313
+hugo --environment production   # 构建到 public/
+```
 
-- `data/planner.json` is the catalog for the planner. Each app has a deployment/reference source and an explicit planning allowance. These are not benchmark results. Recheck official system guidance before changing documented floors, and update the review date.
-- `assets/js/planner-model.js` contains the calculation only; Node tests cover unknown versus zero prices, storage and backup costs, official floors, invalid inputs, playback limits and workloads above the starter range. The storage explanation uses the same returned components; their sum includes rounding and reconciles with primary capacity.
-- `assets/js/planner.js` renders accessible controls/results. Quote values stay in memory on this page, are not persisted or sent to a server, and only go to the clipboard after an explicit copy action.
-- `assets/css/extended/yangspec.css` controls the shared design; `assets/css/planner.css` loads on tools pages. Hugo fingerprints and minifies shipped CSS/JS. Keep the source readable.
-- `layouts/` overrides theme templates. Preserve current article URLs when updating content and keep formula explanations consistent with the model.
-- `static/favicon.svg` is the vector source for the brand icon. Keep the PNG, ICO and Safari mask derivatives synchronized with its mark and the header. Runtime pages need no image-processing dependency.
+构建时会出现一条 PaperMod 的 `.Language.LanguageCode` 弃用警告，不影响输出；升级 Hugo 前需要先确认主题兼容。
 
-## Review before release
+## 代码约定
 
-Check home, planner (empty and selected states), and a guide at 320, 390, 768, 1024 and 1440 px, in both themes. Cover keyboard navigation, visible focus, errors, result/edit navigation, copying, reset and reduced motion. Run Lighthouse on the Pages preview; repeated lab scores do not establish real-user Core Web Vitals or full accessibility conformance.
+- `layouts/home.html`、`layouts/single.html`、`layouts/404.html` 是项目自带模板，覆盖主题默认。
+- `assets/css/extended/personal.css` 是唯一的站点样式，Hugo 会与主题样式合并、压缩并加指纹。改样式只改这一个文件。
+- `hugo.toml` 里的 `params.city` 与 `params.email` 被首页、关于页和页脚共用，改一处全站生效。
+- 静态图标在 `static/`，`favicon.svg` 是矢量源，PNG / ICO / Safari mask 需要与它保持同步。
 
-In the planner, type a value in the last quote field and press Tab. Focus must stay on “Why this size?”; Enter should open and close the explanation, and the next Tab should reach Copy plan. An unchanged blur event must not rebuild the focused result. Also verify select/checkbox changes, presets and reset still refresh the plan.
+## 旧内容归档
 
-Avoid unverified provider rankings, generic prices that exclude required storage, or claims that a VPS supports hardware transcoding without confirmed device access. Keep secrets and authentication material out of source and reports.
+改版前这里有两个浏览器工具（图片附件处理、自托管容量规划）和几篇自托管指南。源码没有删除，整体移到了 `archive/legacy-tools-site/`，不进构建、不再对外提供。要恢复其中某个工具时，把对应文件移回原位即可，但需要重新检查测试与文案。
+
+## 发布前检查
+
+- `hugo --environment production` 无报错，输出页数与本页结构一致。
+- 首页、关于、联系、隐私在 390 / 768 / 1024 / 1440 px 下排版正常，深浅色都看一遍。
+- 键盘 Tab 能走完导航、正文链接和页脚，焦点环可见；`跳到主要内容` 链接可用。
+- 站内链接没有 404，`sitemap.xml` 只包含上面四个页面。
+- Cloudflare 的统计是托管层面注入的，不在本仓库里；如果启停或改了范围，同步更新 `/privacy/`。
