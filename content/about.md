@@ -1,31 +1,27 @@
 ---
-title: "About"
+title: "关于"
 date: 2026-10-04
-lastmod: 2026-10-08
-description: "Practical browser tools, self-hosting guides, and the limits behind YangSpec’s advice."
+lastmod: 2026-10-30
+description: "几条确定的事实，以及这个站点为什么长这样。"
+eyebrow: "ABOUT · 关于"
 ---
 
-YangSpec is an independent collection of **practical browser tools and guides**. We help with a specific task, explain the limits, and make the next step clear.
+我是 YangSpec，在成都生活和工作。
 
-## What you can use today
+给自己的定位还在变，所以这一页不打算写一句漂亮但空的话。目前确定的部分是：我用 YangSpec 这个名字在网上活动，看得多、动手多，愿意把过程和结果写下来。
 
-- The free [Image Attachment Helper](/tools/image-attachment-helper/) resizes and compresses one still JPG or PNG for an email or upload form. Image processing happens on your device. It reports the actual output size, including when it cannot meet your limit. Review the downloaded image before submitting it.
-- The free [Self-Hosting Planner](/tools/selfhost-planner/) estimates capacity for a small server stack and provides a monthly cost worksheet. Our [self-hosting guides](/posts/) explain the assumptions and trade-offs.
+## 这个站点
 
-Both tools work without an account. See the [toolbox](/tools/) for their supported tasks and the [privacy policy](/privacy/) for how local processing differs from page analytics.
+站点由 Hugo 生成，托管在 Cloudflare。没有账号系统，没有留言表单，也没有广告——想说话，直接写邮件。
 
-## How we approach tools and advice
+改版之前，这里放过两个浏览器工具（图片附件处理、自托管容量规划）和几篇自托管指南。它们已经下架，内容归档在仓库的 `archive/` 目录里，不再对外提供，也不再维护。
 
-Tools describe the formats and limits they support. A file-size check does not guarantee acceptance by another service, and a readable preview does not replace checking the downloaded file at full size.
+## 现在
 
-For the planner, we distinguish official requirements, our planning allowances and actual measurements. Its capacity estimates have not been benchmarked against the listed workloads. Server quotes, storage, backups and other costs need to be checked for your own setup.
+方向还在收拾，暂时没有能写成一页的进展。有确定的东西会先更新在首页。
 
-Provider links are references for gathering information, not a universal ranking or a promise that a package fits your result. The planner does not rank providers or use affiliate commission in its calculations.
+## 联系
 
-## Funding and independence
+邮箱：[yua81093@gmail.com](mailto:yua81093@gmail.com)
 
-The current site has no advertising or active affiliate purchase links. If we add advertising, sponsorship or affiliate links, we will label the relationship where it applies and update the privacy information. We do not sell server access or offer a managed hosting service.
-
-## Contact
-
-Questions, corrections, or suggestions are welcome. Email: **contact@yangspec.com**. Please describe the problem without sending a private image, account credentials or other sensitive information.
+技术问题、页面上的错误、想法或者合作，都可以写。邮件多的时候回得慢，但会看。

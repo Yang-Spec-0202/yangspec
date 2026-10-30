@@ -1,13 +1,15 @@
 {{ define "main" }}
-<section class="post-single" aria-labelledby="not-found-title">
-  <header class="post-header">
-    <p class="eyebrow">404 / A MISSING PAGE</p>
-    <h1 class="post-title" id="not-found-title">A way forward.</h1>
-    <p class="post-description">We could not find this page. Start a plan or find the guide you need.</p>
-  </header>
-  <div class="hero-actions">
-    <a class="button button-primary" href="{{ "/tools/selfhost-planner/" | relURL }}">Build your plan ↗</a>
-    <a class="button button-quiet" href="{{ "/posts/" | relURL }}">Read the guides</a>
-  </div>
-</section>
+<div class="wrap">
+  <section class="page error-page" aria-labelledby="not-found-title">
+    <header class="page-header">
+      <p class="hero-eyebrow">404 · 页面不存在</p>
+      <h1 class="page-title" id="not-found-title">这一页没有了</h1>
+      <p class="page-lede">地址可能打错，或者这个页面已经被去掉。</p>
+    </header>
+    <div class="hero-links">
+      <a class="arrow-link" href="{{ "/" | relURL }}">回首页<span aria-hidden="true">→</span></a>
+      <a class="arrow-link" href="mailto:{{ site.Params.email }}">写封邮件<span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</div>
 {{ end }}
