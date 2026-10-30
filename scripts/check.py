@@ -36,6 +36,7 @@ REQUIRED_PAGES = [
     "about/index.html",
     "contact/index.html",
     "privacy/index.html",
+    "posts/index.html",
     "404.html",
 ]
 SKIP_DIRS = {"archive", "themes", ".git", "public", "resources", "node_modules"}
@@ -129,7 +130,7 @@ def check_pages(site: Path) -> dict[Path, PageParser]:
         if not (site / rel).is_file():
             fail(f"缺少页面：{rel}")
     if all((site / rel).is_file() for rel in REQUIRED_PAGES):
-        ok("必需页面齐全（4 个路由 + 404）")
+        ok(f"必需页面齐全（{len(REQUIRED_PAGES) - 1} 个路由 + 404）")
 
     for path in sorted(site.rglob("*.html")):
         parser = PageParser()
@@ -139,15 +140,26 @@ def check_pages(site: Path) -> dict[Path, PageParser]:
     sitemap = site / "sitemap.xml"
     if sitemap.is_file():
         locations = re.findall(r"<loc>(.*?)</loc>", read_text(sitemap))
-        required = {"/", "/about/", "/contact/", "/privacy/"}
+        required = {"/", "/about/", "/contact/", "/privacy/", "/posts/"}
         found = {urlsplit(url).path or "/" for url in locations}
+        # 构建产物里的每个 index.html 都应有条目，sitemap 也不应指向不存在的页面。
+        indexable = {
+            "/" + path.relative_to(site).as_posix()[: -len("index.html")]
+            for path in site.rglob("index.html")
+        }
         missing = required - found
+        omitted = indexable - found
+        unknown = found - indexable
         if missing:
             fail(f"sitemap 缺少：{', '.join(sorted(missing))}")
+        if omitted:
+            fail(f"sitemap 漏掉构建页面：{', '.join(sorted(omitted))}")
+        if unknown:
+            fail(f"sitemap 含不存在的页面：{', '.join(sorted(unknown))}")
         if "/404.html" in found:
             fail("sitemap 不应包含 404.html")
-        if not missing and "/404.html" not in found:
-            ok("sitemap 只包含四个可索引页面")
+        if not (missing or omitted or unknown or "/404.html" in found):
+            ok(f"sitemap 覆盖全部 {len(found)} 个可索引页面（不含 404）")
     else:
         fail("缺少 sitemap.xml")
     return pages

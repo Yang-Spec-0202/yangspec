@@ -8,7 +8,9 @@
 
 | 路径 | 内容 |
 | --- | --- |
-| `/` | 首页：署名、一句介绍、关于与站点说明 |
+| `/` | 首页：署名、一句介绍、最新文章与站点说明 |
+| `/posts/` | 文章：写下的东西，按日期倒序 |
+| `/posts/<slug>/` | 文章正文：日期、正文与返回入口 |
 | `/about/` | 关于：我是谁、这个站怎么来的、联系方式 |
 | `/contact/` | 联系：邮箱与几条边界 |
 | `/privacy/` | 隐私：本站处理哪些数据 |
@@ -28,7 +30,7 @@ hugo --environment production   # 构建到 public/
 
 ## 代码约定
 
-- `layouts/home.html`、`layouts/single.html`、`layouts/404.html` 是项目自带模板，覆盖主题默认。
+- `layouts/home.html`、`layouts/single.html`、`layouts/posts/`、`layouts/404.html` 是项目自带模板，覆盖主题默认。
 - `assets/css/extended/personal.css` 是唯一的站点样式，Hugo 会与主题样式合并、压缩并加指纹。改样式只改这一个文件。
 - `hugo.toml` 里的 `params.city` 与 `params.email` 被首页、关于页和页脚共用，改一处全站生效。
 - 图标来自 GitHub 头像，由 `scripts/make-icons.py` 生成：`python3 scripts/make-icons.py avatar.jpg`。换头像后重跑脚本，不要手改 `static/` 里的图标。
@@ -42,7 +44,7 @@ hugo --environment production   # 构建到 public/
 ## 发布前检查
 
 - `hugo --environment production` 无报错，输出页数与本页结构一致。
-- 首页、关于、联系、隐私在 390 / 768 / 1024 / 1440 px 下排版正常，深浅色都看一遍。
+- 首页、文章列表、文章正文、关于、联系、隐私在 390 / 768 / 1024 / 1440 px 下排版正常，深浅色都看一遍。
 - 键盘 Tab 能走完导航、正文链接和页脚，焦点环可见；`跳到主要内容` 链接可用。
-- 站内链接没有 404，`sitemap.xml` 只包含上面四个页面。
+- 站内链接没有 404，`sitemap.xml` 覆盖全部可索引页面且不含 404。
 - Cloudflare 的统计是托管层面注入的，不在本仓库里；如果启停或改了范围，同步更新 `/privacy/`。

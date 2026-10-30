@@ -15,7 +15,7 @@ mkdir -p "$npm_config_cache"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-routes=(home:/ about:/about/ contact:/contact/ privacy:/privacy/)
+routes=(home:/ posts:/posts/ post:/posts/hello/ about:/about/ contact:/contact/ privacy:/privacy/)
 for item in "${routes[@]}"; do
   name="${item%%:*}"
   path="${item#*:}"
@@ -36,7 +36,7 @@ tmp, base = sys.argv[1], sys.argv[2]
 fails = []
 passes = []
 
-for name in ("home", "about", "contact", "privacy"):
+for name in ("home", "posts", "post", "about", "contact", "privacy"):
     with open(f"{tmp}/{name}.json", encoding="utf-8") as handle:
         data = json.load(handle)
     audits = data["audits"]
@@ -60,7 +60,7 @@ for name in ("home", "about", "contact", "privacy"):
         fails.append(f"{name}: TBT {tbt:.0f}ms > 200ms")
 
 if not fails:
-    passes.append("Lighthouse 四页达标")
+    passes.append("Lighthouse 六页达标")
 
 host = urlsplit(base).hostname or ""
 local = host in {"127.0.0.1", "localhost", "::1"}
