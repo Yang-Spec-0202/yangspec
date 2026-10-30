@@ -137,9 +137,14 @@ button:focus-visible,
   color: var(--primary);
 }
 
-.brand svg {
+.brand-avatar {
   flex: none;
-  color: var(--primary);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--tertiary);
 }
 
 .brand-dot {

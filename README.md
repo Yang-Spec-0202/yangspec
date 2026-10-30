@@ -31,7 +31,7 @@ hugo --environment production   # 构建到 public/
 - `layouts/home.html`、`layouts/single.html`、`layouts/404.html` 是项目自带模板，覆盖主题默认。
 - `assets/css/extended/personal.css` 是唯一的站点样式，Hugo 会与主题样式合并、压缩并加指纹。改样式只改这一个文件。
 - `hugo.toml` 里的 `params.city` 与 `params.email` 被首页、关于页和页脚共用，改一处全站生效。
-- 静态图标在 `static/`，`favicon.svg` 是矢量源，PNG / ICO / Safari mask 需要与它保持同步。
+- 图标来自 GitHub 头像，由 `scripts/make-icons.py` 生成：`python3 scripts/make-icons.py avatar.jpg`。换头像后重跑脚本，不要手改 `static/` 里的图标。`safari-pinned-tab.svg` 仍是单色 Y 形蒙版，只用于 Safari 固定标签页。
 
 ## 旧内容归档
 

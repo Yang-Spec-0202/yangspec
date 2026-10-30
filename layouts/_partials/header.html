@@ -1,6 +1,6 @@
 <header class="site-header">
   <nav class="site-nav wrap" aria-label="主导航">
-    <a class="brand" href="{{ "/" | relURL }}" aria-label="YangSpec 首页"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><path d="M2 4h7l5 8 5-8h7L17 18v7h-6v-7z" fill="currentColor"/></svg><span>YangSpec<span class="brand-dot">.</span></span></a>
+    <a class="brand" href="{{ "/" | relURL }}" aria-label="YangSpec 首页"><img class="brand-avatar" src="{{ "avatar-128.png" | relURL }}" alt="" width="30" height="30" decoding="async"><span>YangSpec<span class="brand-dot">.</span></span></a>
     <ul class="site-menu">
       {{- range site.Menus.main }}
       {{- $target := .URL | relURL }}
