@@ -1,0 +1,9 @@
+{{- /*
+  Page header shared by articles, lists and the 404 page.
+  Context: dict "eyebrow" "title" "lede" (optional) "id" (optional).
+*/ -}}
+<header class="page-header">
+  <p class="hero-eyebrow">{{ .eyebrow }}</p>
+  <h1 class="page-title"{{ with .id }} id="{{ . }}"{{ end }}>{{ .title }}</h1>
+  {{ with .lede }}<p class="page-lede">{{ . }}</p>{{ end }}
+</header>
