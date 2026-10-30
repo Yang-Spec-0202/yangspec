@@ -20,7 +20,11 @@ summaryLength = 30
   mainSections = ["posts"]
 
 [params.assets]
-  favicon = "favicon.svg"
+  # ?v= 用来打破浏览器与 CDN 的图标缓存：换图标后把这个数字加一。
+  favicon = "favicon.ico?v=2"
+  favicon16x16 = "favicon-16x16.png?v=2"
+  favicon32x32 = "favicon-32x32.png?v=2"
+  apple_touch_icon = "apple-touch-icon.png?v=2"
   theme_color = "#213c35"
   msapplication_TileColor = "#213c35"
 
