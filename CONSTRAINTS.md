@@ -46,7 +46,7 @@
 - 事实、引文、数据给出来源链接和日期；无法核实的数字不写。日期统一 `YYYY-MM-DD`。
 - 草稿用 `draft: true`，生产构建不包含；`--buildDrafts` 只允许本地使用。
 - 隐私页逐项写清：Cloudflare 侧访问日志、是否启用 Web Analytics、`localStorage` 主题偏好、邮件留存、读者如何联系。不写“绝对安全”“完全匿名”。
-- 对外文案与隐私页必须同时成立：首页说“没有第三方追踪脚本”，隐私页就不能写“使用访问统计”；反之亦然。当前两处不一致，见第 6 节。
+- 对外文案与隐私页必须同时成立：首页说“没有第三方追踪脚本”，隐私页就不能写“使用访问统计”；反之亦然。
 
 ## 3. 代码与结构规范
 
@@ -84,6 +84,7 @@
 | 外链 | 3 个，均 200 | 失效数只降不升 |
 | 正文对比度 | 5.7:1 – 12.6:1（深浅两套） | 正文 ≥ 4.5:1 |
 | 站点 `Set-Cookie` | 线上 HEAD 未见 | 必须保持 0 |
+| 第三方请求 | 仅 Cloudflare Web Analytics beacon（边缘注入，不写 Cookie；2026-10-30 启用） | 不得新增其他第三方 |
 
 Lighthouse 数字是单次实验室结果（localhost 与线上各一组），不等于真实用户字段数据；只用作回归门槛。
 
@@ -91,7 +92,6 @@ Lighthouse 数字是单次实验室结果（localhost 与线上各一组），�
 
 | 项 | 现状 | 处理 | 到期 |
 |----|------|------|------|
-| 隐私页与线上统计 | `/privacy/` 称使用 Cloudflare Web Analytics，但 2026-10-30 线上首页未注入 `cloudflareinsights` beacon（只见 Cloudflare email-decode 脚本） | 二选一：在 Cloudflare 开启 Web Analytics，或删掉隐私页对应段落；同时核对首页“没有第三方追踪脚本” | 2026-11-15 |
 | 安全头 | 2026-10-30 已由 `static/_headers` 接管，线上四项头验证通过；HSTS 未开启 | 在控制台评估 `includeSubDomains` 后再开 HSTS；改 `_headers` 后重跑 `preview-check.sh` | 2026-12-31 |
 | CSP | 只设 `frame-ancestors`、`base-uri`、`form-action`；PaperMod 有内联主题脚本 | 升级主题时再评估 hash/nonce；不为了 CSP 引入 `unsafe-inline` 脚本白名单 | 主题升级时 |
 | CI | 无 GitHub Actions，检查靠本地脚本 | 合并前手动跑；接入 CI 时把 `scripts/check.sh --full` 放进去 | 2026-12-31 |
