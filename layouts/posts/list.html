@@ -2,9 +2,6 @@
 <div class="wrap">
   <section class="page list-page" aria-labelledby="posts-title">
     {{ partial "page-header.html" (dict "eyebrow" "WRITING · 文章" "title" .Title "id" "posts-title" "lede" .Description) }}
-    {{ with .OutputFormats.Get "rss" }}
-    <p class="list-meta"><a class="text-link" href="{{ .RelPermalink }}">RSS 订阅</a></p>
-    {{ end }}
 
     {{ if .Pages }}
     <ol class="post-list">
