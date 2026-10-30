@@ -15,7 +15,7 @@ mkdir -p "$npm_config_cache"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-routes=(home:/ about:/about/ contact:/contact/ privacy:/privacy/)
+routes=(home:/ posts:/posts/ post:/posts/hello/ about:/about/ contact:/contact/ privacy:/privacy/)
 for item in "${routes[@]}"; do
   name="${item%%:*}"
   path="${item#*:}"
@@ -36,7 +36,7 @@ tmp, base = sys.argv[1], sys.argv[2]
 fails = []
 passes = []
 
-for name in ("home", "about", "contact", "privacy"):
+for name in ("home", "posts", "post", "about", "contact", "privacy"):
     with open(f"{tmp}/{name}.json", encoding="utf-8") as handle:
         data = json.load(handle)
     audits = data["audits"]
@@ -60,7 +60,7 @@ for name in ("home", "about", "contact", "privacy"):
         fails.append(f"{name}: TBT {tbt:.0f}ms > 200ms")
 
 if not fails:
-    passes.append("Lighthouse 四页达标")
+    passes.append("Lighthouse 六页达标")
 
 host = urlsplit(base).hostname or ""
 local = host in {"127.0.0.1", "localhost", "::1"}
@@ -101,7 +101,23 @@ else:
             if tag in {"script", "img", "iframe"} and values.get("src"):
                 self.urls.append(values["src"])
             if tag == "link" and values.get("href"):
-                self.urls.append(values["href"])
+                # canonical、alternate 这类关系只声明身份，浏览器不会请求；
+                # 只统计会真正取资源的 rel，避免把生产域名误报成第三方请求。
+                fetching = {
+                    "stylesheet",
+                    "icon",
+                    "apple-touch-icon",
+                    "mask-icon",
+                    "manifest",
+                    "preload",
+                    "modulepreload",
+                    "prefetch",
+                    "preconnect",
+                    "dns-prefetch",
+                }
+                rels = set((values.get("rel") or "").lower().split())
+                if rels & fetching:
+                    self.urls.append(values["href"])
 
     parser = Refs()
     parser.feed(body)

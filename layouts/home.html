@@ -19,6 +19,27 @@
     </div>
   </section>
 
+  <section class="block" aria-labelledby="block-posts">
+    <h2 class="block-label" id="block-posts">文章</h2>
+    <div class="block-body">
+      {{ $posts := where site.RegularPages "Section" "posts" }}
+      <p>写下来的东西都放在这里，更新不固定。</p>
+      {{ if $posts }}
+      <ul class="latest-list">
+        {{ range first 3 $posts }}
+        <li>
+          <a href="{{ .RelPermalink }}">
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (site.Params.DateFormat | default "2006-01-02") }}</time>
+            <span>{{ .Title }}</span>
+          </a>
+        </li>
+        {{ end }}
+      </ul>
+      {{ end }}
+      <p class="block-more"><a class="text-link" href="{{ "/posts/" | relURL }}">全部文章 <span aria-hidden="true">→</span></a></p>
+    </div>
+  </section>
+
   <section class="block" aria-labelledby="block-site">
     <h2 class="block-label" id="block-site">这个站点</h2>
     <div class="block-body">
