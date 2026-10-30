@@ -1,20 +1,4 @@
 {{ define "main" }}
-<div class="wrap">
-  <article class="page">
-    <header class="page-header">
-      <p class="hero-eyebrow">文章 · {{ .Date.Format (site.Params.DateFormat | default "2006-01-02") }}</p>
-      <h1 class="page-title">{{ .Title }}</h1>
-      {{ with .Description }}<p class="page-lede">{{ . }}</p>{{ end }}
-    </header>
-
-    <div class="prose">
-      {{ .Content }}
-    </div>
-
-    <footer class="post-footer">
-      <a class="arrow-link" href="{{ "/posts/" | relURL }}"><span aria-hidden="true">←</span>全部文章</a>
-      <a class="arrow-link" href="{{ "/" | relURL }}">回首页<span aria-hidden="true">→</span></a>
-    </footer>
-  </article>
-</div>
+{{- $eyebrow := printf "文章 · %s" (.Date.Format (site.Params.DateFormat | default "2006-01-02")) -}}
+{{ partial "article.html" (dict "page" . "eyebrow" $eyebrow "footer" "post-footer.html") }}
 {{ end }}

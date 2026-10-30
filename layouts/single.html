@@ -1,14 +1,1 @@
-{{ define "main" }}
-<div class="wrap">
-  <article class="page">
-    <header class="page-header">
-      <p class="hero-eyebrow">{{ .Params.eyebrow | default "YANGSPEC" }}</p>
-      <h1 class="page-title">{{ .Title }}</h1>
-      {{ with .Description }}<p class="page-lede">{{ . }}</p>{{ end }}
-    </header>
-    <div class="prose">
-      {{ .Content }}
-    </div>
-  </article>
-</div>
-{{ end }}
+{{ define "main" }}{{ partial "article.html" (dict "page" .) }}{{ end }}

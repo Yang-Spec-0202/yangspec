@@ -1,0 +1,15 @@
+{{- /*
+  Article shell shared by regular pages and posts.
+  Context: dict "page" "eyebrow" (optional) "footer" (optional partial name) "id" (optional).
+*/ -}}
+{{- $page := .page -}}
+{{- $eyebrow := .eyebrow | default ($page.Params.eyebrow | default "YANGSPEC") -}}
+<div class="wrap">
+  <article class="page">
+    {{ partial "page-header.html" (dict "eyebrow" $eyebrow "title" $page.Title "lede" $page.Description "id" .id) }}
+    <div class="prose">
+      {{ $page.Content }}
+    </div>
+    {{ with .footer }}{{ partial . $page }}{{ end }}
+  </article>
+</div>
