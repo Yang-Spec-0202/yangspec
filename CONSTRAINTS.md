@@ -92,7 +92,7 @@ Lighthouse 数字是单次实验室结果（localhost 与线上各一组），�
 | 项 | 现状 | 处理 | 到期 |
 |----|------|------|------|
 | 隐私页与线上统计 | `/privacy/` 称使用 Cloudflare Web Analytics，但 2026-10-30 线上首页未注入 `cloudflareinsights` beacon（只见 Cloudflare email-decode 脚本） | 二选一：在 Cloudflare 开启 Web Analytics，或删掉隐私页对应段落；同时核对首页“没有第三方追踪脚本” | 2026-11-15 |
-| 安全头来源 | 生产已有 `nosniff`、`Referrer-Policy`，但仓库此前没有 `_headers`，来源不可复现；2026-10-30 实测缺 `Permissions-Policy` 与 frame 保护 | 本分支新增 `static/_headers`；合并后在预览与生产核对四项头；HSTS 在控制台评估 `includeSubDomains` 后再开 | 2026-12-31 |
+| 安全头 | 2026-10-30 已由 `static/_headers` 接管，线上四项头验证通过；HSTS 未开启 | 在控制台评估 `includeSubDomains` 后再开 HSTS；改 `_headers` 后重跑 `preview-check.sh` | 2026-12-31 |
 | CSP | 只设 `frame-ancestors`、`base-uri`、`form-action`；PaperMod 有内联主题脚本 | 升级主题时再评估 hash/nonce；不为了 CSP 引入 `unsafe-inline` 脚本白名单 | 主题升级时 |
 | CI | 无 GitHub Actions，检查靠本地脚本 | 合并前手动跑；接入 CI 时把 `scripts/check.sh --full` 放进去 | 2026-12-31 |
 | 外链监控 | 手动，发布前/每月 | 加定时任务或 GitHub Actions schedule | 2027-01-31 |
