@@ -5,11 +5,13 @@
 ## 1. 发布前
 
 1. 从 `main` 开工作分支（`feat/`、`fix/`、`content/`、`chore/`、`docs/`），一个分支只做一件事。
-2. 构建与静态检查：
+2. 构建与静态检查；发布前这一轮要留存输出，供发布记录引用：
 
    ```bash
-   HUGO_BIN=/path/to/hugo scripts/check.sh
+   HUGO_BIN=/path/to/hugo scripts/check-record.sh --full
    ```
+
+   输出会同时写到 `reports/check-<时间>.txt`（gitignored），末尾带 commit 与退出码。
 
    期望：退出码 0、0 个 `ERROR`、只有一条已登记的 `LanguageCode` 警告、所有检查项 `PASS`。
 3. 改动布局或样式时，人工看 390 / 768 / 1440 px、深浅两套主题；键盘 Tab 走一遍导航与正文链接。
@@ -34,13 +36,17 @@ scripts/preview-check.sh https://yangspec.com
 - 改了数据流（Cookie、表单、统计、`localStorage` 用途）时，核对 `/privacy/` 的描述与实际一致。
 - 换了图标时，确认 `hugo.toml` 里 `[params.assets]` 的 `?v=` 已递增，否则浏览器与 CDN 会继续用缓存。
 
-## 4. 回滚
+## 4. 记录发布
+
+在 [releases.md](releases.md) 追加一条，字段照该文件的模板：日期、commit、改动摘要、检查结果（引用 `reports/` 里的报告文件名）、生产检查、回滚点、异常。只追加，不改写旧记录。
+
+## 5. 回滚
 
 1. 用 Cloudflare Pages 的部署回滚，回到上一个正常版本；不要用 revert 抢时间。
 2. 回滚后 10 分钟内重跑第 3 节的生产检查。
-3. 回滚原因与影响范围记录到 `ops/releases.md`（`ops-log` 模块启用后）。
+3. 回滚原因、影响范围与恢复时间记录到 [releases.md](releases.md)，另起一条。
 
-## 5. 常见故障
+## 6. 常见故障
 
 | 现象 | 先查 | 处理 |
 | --- | --- | --- |
@@ -51,8 +57,8 @@ scripts/preview-check.sh https://yangspec.com
 | 外链检查失败 | 目标站状态 | 403/429 记警告；5xx 等对方恢复后重跑 |
 | Lighthouse 波动 | 网络与机器负载 | 同一 URL 重跑一次；仍低于阈值再当回归处理 |
 
-## 6. 日常与月度
+## 7. 日常与月度
 
-- 每月：`scripts/check.sh --full` 检查外链；抽查一次生产 `preview-check.sh`。
-- 每季度：按 `CONSTRAINTS.md` 第 8 节评审阈值与例外。
+- 每月：`scripts/check-record.sh --full` 检查外链并留存输出；抽查一次生产 `preview-check.sh`。
+- 每季度：按 `CONSTRAINTS.md` 第 8 节评审阈值与例外，并复查 [releases.md](releases.md) 里的异常是否重复出现。
 - 升级 Hugo 或主题前：先确认兼容性，再同步 `README.md` 与 `CONSTRAINTS.md` 里的版本号。
