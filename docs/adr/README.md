@@ -19,6 +19,7 @@
 | [0001](0001-static-hugo-cloudflare-pages.md) | 静态 Hugo + Cloudflare Pages | 已采纳 |
 | [0002](0002-single-stylesheet-two-themes.md) | 单一站点样式表 + CSS 变量双主题 | 已采纳 |
 | [0003](0003-posts-section-and-article-component.md) | 文章独立 section + 共用 article 组件 | 已采纳 |
+| [0004](0004-pagination-archive-and-post-navigation.md) | 文章分页、按年归档与文章导航 | 已采纳 |
 
 ## 模板
 

@@ -12,7 +12,7 @@
 ### YYYY-MM-DD · <commit> · <一句话摘要>
 - 改动：<PR 与范围>
 - 检查：`scripts/check-record.sh --full` → 退出码、PASS 数、报告文件
-- 生产：`scripts/preview-check.sh https://yangspec.com` → 六路由分数、LCP 范围、CLS、Set-Cookie、第三方请求
+- 生产：`scripts/preview-check.sh https://yangspec.com` → 七路由分数、LCP 范围、CLS、Set-Cookie、第三方请求
 - 回滚点：<上一个生产 commit>
 - 异常：无 / <现象、处理、耗时>
 ```

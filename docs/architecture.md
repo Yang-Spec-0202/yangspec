@@ -22,9 +22,10 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 | 固定页（关于、联系、隐私） | `content/*.md` | `/about/` 等 |
 | 文章列表 | `content/posts/_index.md` | `/posts/` |
 | 文章 | `content/posts/<slug>.md` | `/posts/<slug>/` |
+| 归档页 | `content/archives/_index.md` | `/archives/` |
 
 - Front matter 必填 `title`、`date`、`description`；`eyebrow` 控制页面眉标，文章不用它（眉标由日期生成）。
-- 文章按日期倒序；`draft: true` 不进生产构建。
+- 文章按日期倒序；`draft: true` 不进生产构建。列表每页篇数由 `hugo.toml` 的 `[pagination] pagerSize` 决定，取值与理由见 [adr/0004](adr/0004-pagination-archive-and-post-navigation.md)。
 - `taxonomies` 为空：没有标签、分类页，这是有意为之，不是遗漏。
 - 模板不硬编码邮箱、城市；一律取 `hugo.toml` 的 `params`，正文里出现的邮箱也必须与 `params.email` 一致。
 
@@ -36,15 +37,19 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 | partial | 作用 |
 | --- | --- |
-| `header.html` / `footer.html` | 站点导航与页脚 |
-| `page-header.html` | 眉标 + 标题 + 描述（文章、列表、404 共用） |
+| `header.html` / `footer.html` | 站点导航与页脚（页脚含归档入口） |
+| `page-header.html` | 眉标 + 标题 + 描述（文章、列表、归档、404 共用） |
 | `article.html` | 文章骨架：`article.page` + 页头 + 正文，可选文末 partial |
-| `post-footer.html` | 文章底部的“全部文章 / 回首页” |
+| `post-footer.html` | 文章底部的最后更新、上一篇/下一篇与返回链接 |
+| `pagination.html` | 列表分页页码；只有一页时不输出 |
 | `extend_head.html` | 额外 head 内容（当前为空） |
 
-- 页面模板：`layouts/home.html`、`layouts/posts/list.html`、`layouts/posts/single.html`、`layouts/single.html`、`layouts/404.html`。
+- 页面模板：`layouts/home.html`、`layouts/posts/list.html`、`layouts/posts/single.html`、`layouts/archives/list.html`、`layouts/single.html`、`layouts/404.html`。
+- `/posts/` 用 `.Paginate` 分页；Hugo 生成 `/posts/page/<n>/`，其中 `/posts/page/1/` 是指向 `/posts/` 的别名。分页页不进 `sitemap.xml`，也不应被当成可索引页面。
+- 文章页按日期给出上一篇（更早，`.PrevInSection`）与下一篇（更新，`.NextInSection`）；`lastmod` 与 `date` 不同才渲染“最后更新”。
+- 归档页 `/archives/` 用 `GroupByDate "2006"` 按年倒序分组；`content/archives/_index.md` 的 `outputs: ["html"]` 让归档只产出 HTML，没有 `/archives/index.xml`。
 - 表格由 `layouts/_markup/render-table.html` 包裹滚动容器，保证窄屏可读。
-- RSS 由 Hugo 自动生成（首页与文章栏目），页面没有可见入口；需要时手动用 `/posts/index.xml`。
+- RSS 由 Hugo 自动生成（首页与文章栏目），页面没有可见入口；需要时手动用 `/posts/index.xml`。归档页只输出 HTML，没有 RSS。
 
 ## 样式与脚本
 
@@ -58,9 +63,9 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 | 脚本 | 作用 |
 | --- | --- |
-| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算）；`--full` 增加外链 |
+| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算、分页结构、归档覆盖、上一篇/下一篇、最后更新）；`--full` 增加外链 |
 | `scripts/check-record.sh [--full]` | 运行 `check.sh`，把完整输出、commit 与退出码存到 gitignored 的 `reports/`，供发布记录引用 |
-| `scripts/preview-check.sh <url>` | Lighthouse 六条路由、安全头、`Set-Cookie`、第三方请求；localhost 自动跳过安全头 |
+| `scripts/preview-check.sh <url>` | Lighthouse 七条路由、安全头、`Set-Cookie`、第三方请求；localhost 自动跳过安全头 |
 | `scripts/make-icons.py` | 从头像生成站点图标 |
 
 发布记录的格式与追加规则见 [ops/releases.md](ops/releases.md)；没有 CI（`CONSTRAINTS.md` 第 6 节登记 2026-12-31 前接入），所有检查靠合并前手动执行。
