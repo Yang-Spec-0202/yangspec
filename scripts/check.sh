@@ -49,6 +49,8 @@ elif [ -n "${1:-}" ]; then
   exit 2
 fi
 
+python3 scripts/check-docs.py
+
 if [ ${#args[@]} -gt 0 ]; then
   python3 scripts/check.py public "${args[@]}"
 else
