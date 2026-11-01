@@ -17,25 +17,30 @@
 
 导航在 `hugo.toml` 的 `[menu.main]` 里维护，加一项就多一个入口。
 
+## 文档
+
+- [docs/](docs/README.md)：维护者入口——架构、ADR、发布与故障手册
+- [CONSTRAINTS.md](CONSTRAINTS.md)：什么算可发布，质量门槛与检查命令
+- [AGENTS.md](AGENTS.md)：在这个仓库里工作的 agent 规则
+
 ## 本地开发
 
 需要 Hugo Extended 0.167.0（生产构建的版本）。PaperMod 以普通文件放在 `themes/PaperMod`，不是 submodule，不需要初始化主题，也不需要装前端依赖。
 
 ```bash
-hugo server                 # 本地预览，默认 http://localhost:1313
-hugo --environment production   # 构建到 public/
+hugo server                      # 本地预览，默认 http://localhost:1313
+hugo --environment production    # 构建到 public/
+HUGO_BIN=/path/to/hugo scripts/check.sh   # 构建 + 静态检查，/path/to/hugo 换成实际路径
 ```
 
 构建时会出现一条 PaperMod 的 `.Language.LanguageCode` 弃用警告，不影响输出；升级 Hugo 前需要先确认主题兼容。
 
 ## 代码约定
 
-- `layouts/home.html`、`layouts/single.html`、`layouts/posts/`、`layouts/404.html` 是项目自带模板，覆盖主题默认。
-- `assets/css/extended/personal.css` 是唯一的站点样式，Hugo 会与主题样式合并、压缩并加指纹。改样式只改这一个文件。
-- `hugo.toml` 里的 `params.city` 与 `params.email` 被首页、关于页和页脚共用，改一处全站生效。
-- 图标来自 GitHub 头像，由 `scripts/make-icons.py` 生成：`python3 scripts/make-icons.py avatar.jpg`。换头像后重跑脚本，不要手改 `static/` 里的图标。
-- 换完图标要把 `hugo.toml` 里 `[params.assets]` 的 `?v=` 数字加一，否则浏览器和 CDN 会继续用缓存里的旧图。
-- `safari-pinned-tab.svg` 是单色 Y 形蒙版，只用于 Safari 固定标签页；头像转单色蒙版会糊，暂不改。
+- 模板在 `layouts/` 覆盖主题默认；文章、页面、404 共用 `_partials/article.html` 与 `_partials/page-header.html`，细节见 [docs/architecture.md](docs/architecture.md)。
+- `assets/css/extended/personal.css` 是唯一的站点样式，改样式只改这一个文件。
+- `params.city`、`params.email` 被多页共用；正文里的邮箱也必须与 `params.email` 一致。
+- 图标由 `python3 scripts/make-icons.py <头像图片>` 生成，换图后重跑脚本，并把 `hugo.toml` 里 `[params.assets]` 的 `?v=` 加一。
 
 ## 旧内容归档
 
@@ -43,8 +48,9 @@ hugo --environment production   # 构建到 public/
 
 ## 发布前检查
 
-- `hugo --environment production` 无报错，输出页数与本页结构一致。
-- 首页、文章列表、文章正文、关于、联系、隐私在 390 / 768 / 1024 / 1440 px 下排版正常，深浅色都看一遍。
-- 键盘 Tab 能走完导航、正文链接和页脚，焦点环可见；`跳到主要内容` 链接可用。
-- 站内链接没有 404，`sitemap.xml` 覆盖全部可索引页面且不含 404。
-- Cloudflare 的统计是托管层面注入的，不在本仓库里；如果启停或改了范围，同步更新 `/privacy/`。
+完整步骤见 [docs/ops/runbook.md](docs/ops/runbook.md)，最小检查如下：
+
+- `scripts/check.sh` 通过：0 ERROR、仅一条已登记 WARN、全部检查项 PASS。
+- 首页、文章列表、文章正文、关于、联系、隐私在 390 / 768 / 1440 px、深浅两套主题下排版正常。
+- 键盘 Tab 能走完导航、正文链接和页脚，`跳到主要内容` 链接可用。
+- 数据流有变化时，`/privacy/` 已同步更新。
