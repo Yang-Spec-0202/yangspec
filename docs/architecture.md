@@ -58,11 +58,12 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 | 脚本 | 作用 |
 | --- | --- |
-| `scripts/check.sh` | 生产构建 + `check.py`：必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算；`--full` 增加外链 |
+| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算）；`--full` 增加外链 |
+| `scripts/check-record.sh [--full]` | 运行 `check.sh`，把完整输出、commit 与退出码存到 gitignored 的 `reports/`，供发布记录引用 |
 | `scripts/preview-check.sh <url>` | Lighthouse 六条路由、安全头、`Set-Cookie`、第三方请求；localhost 自动跳过安全头 |
 | `scripts/make-icons.py` | 从头像生成站点图标 |
 
-没有 CI（`CONSTRAINTS.md` 第 6 节登记 2026-12-31 前接入）；所有检查靠合并前手动执行。
+发布记录的格式与追加规则见 [ops/releases.md](ops/releases.md)；没有 CI（`CONSTRAINTS.md` 第 6 节登记 2026-12-31 前接入），所有检查靠合并前手动执行。
 
 ## 输出与部署
 
