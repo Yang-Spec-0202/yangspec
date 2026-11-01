@@ -26,3 +26,11 @@
 - 生产：六条路由 Performance 100 / Accessibility 100，LCP 831–1041 ms，CLS 0；无 `Set-Cookie`，第三方请求仅 Cloudflare Web Analytics beacon，安全头齐全。
 - 回滚点：`b54421a`（文档与日志规范合并，PR #9 之前的部署）。
 - 异常：无。`docs/` 不参与构建，站点输出未变。
+
+### 2026-11-01 · 1f919df · 发布记录与 check-record.sh
+
+- 改动：PR #10 新增 `scripts/check-record.sh`，把 `check.sh` 的输出、commit 与退出码留到 gitignored 的 `reports/`；新增 `docs/ops/releases.md`，runbook 增加“记录发布”一节。复核时修正了首条记录的基线范围、回滚点与第三方请求表述。
+- 检查：`scripts/check-record.sh --full` → 退出码 0，16 条 PASS（`check.py` 汇总 11 项 + 文档检查 5 项）；报告 `reports/check-20261101T194316.txt`。
+- 生产：六条路由 Performance 100 / Accessibility 100，LCP 0.816–1.054 s，CLS 0；无 `Set-Cookie`，第三方请求仅 Cloudflare Web Analytics beacon，安全头齐全。
+- 回滚点：`673813e`（PR #9 合并）。
+- 异常：无。仅文档与检查脚本变化，站点输出未变。
