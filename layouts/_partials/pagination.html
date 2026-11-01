@@ -1,0 +1,22 @@
+{{- /*
+  Pagination for list pages.
+  Context: paginator (from .Paginate on the list page).
+  Renders nothing when the result fits on a single page.
+*/ -}}
+{{- $current := .PageNumber -}}
+{{- if gt .TotalPages 1 -}}
+<nav class="pagination" aria-label="文章分页">
+  <p class="pagination-status">第 {{ .PageNumber }} / {{ .TotalPages }} 页</p>
+  <ul class="pagination-pages">
+    {{- range .Pagers }}
+    <li>
+      {{- if eq .PageNumber $current }}
+      <span class="pagination-current" aria-current="page">{{ .PageNumber }}</span>
+      {{- else }}
+      <a href="{{ .URL }}">{{ .PageNumber }}</a>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ul>
+</nav>
+{{- end -}}

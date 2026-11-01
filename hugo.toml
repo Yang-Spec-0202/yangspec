@@ -54,3 +54,8 @@ summaryLength = 30
 
 [outputs]
   home = ["HTML", "RSS"]
+
+# 列表每页篇数：文章多了也不至于一页拉到底。
+# 改动这里会改变 /posts/ 的分页页数与 /posts/page/N/ 路径。
+[pagination]
+  pagerSize = 8

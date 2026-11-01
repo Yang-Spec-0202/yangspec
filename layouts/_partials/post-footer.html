@@ -1,4 +1,33 @@
+{{- /*
+  Post footer: last-updated date (only when it differs from the date),
+  previous/next links (only when the neighbour exists), and the back links.
+  Context: page.
+*/ -}}
+{{- $dateFormat := site.Params.DateFormat | default "2006-01-02" -}}
+{{- $dateKey := .Date.Format "2006-01-02" -}}
+{{- $updatedKey := .Lastmod.Format "2006-01-02" -}}
 <footer class="post-footer">
-  <a class="arrow-link" href="{{ "/posts/" | relURL }}"><span aria-hidden="true">←</span>全部文章</a>
-  <a class="arrow-link" href="{{ "/" | relURL }}">回首页<span aria-hidden="true">→</span></a>
+  {{- if ne $updatedKey $dateKey }}
+  <p class="post-updated">最后更新 <time datetime="{{ $updatedKey }}">{{ .Lastmod.Format $dateFormat }}</time></p>
+  {{- end }}
+  {{- if or .PrevInSection .NextInSection }}
+  <nav class="post-nav" aria-label="本篇导航">
+    {{- with .PrevInSection }}
+    <a class="post-nav-link" href="{{ .RelPermalink }}" rel="prev">
+      <span class="post-nav-label">上一篇</span>
+      <span class="post-nav-title">{{ .Title }}</span>
+    </a>
+    {{- end }}
+    {{- with .NextInSection }}
+    <a class="post-nav-link" href="{{ .RelPermalink }}" rel="next">
+      <span class="post-nav-label">下一篇</span>
+      <span class="post-nav-title">{{ .Title }}</span>
+    </a>
+    {{- end }}
+  </nav>
+  {{- end }}
+  <div class="post-back">
+    <a class="arrow-link" href="{{ "/posts/" | relURL }}"><span aria-hidden="true">←</span>全部文章</a>
+    <a class="arrow-link" href="{{ "/" | relURL }}">回首页<span aria-hidden="true">→</span></a>
+  </div>
 </footer>
