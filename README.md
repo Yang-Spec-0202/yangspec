@@ -37,7 +37,7 @@ HUGO_BIN=/path/to/hugo scripts/check.sh   # 构建 + 静态检查，/path/to/hug
 
 ## 代码约定
 
-- 模板在 `layouts/` 覆盖主题默认；文章、页面、404 共用 `_partials/article.html` 与 `_partials/page-header.html`，细节见 [docs/architecture.md](docs/architecture.md)。
+- 模板在 `layouts/` 覆盖主题默认；文章与页面共用 `_partials/article.html`，页面、文章、列表与 404 共用 `_partials/page-header.html`，细节见 [docs/architecture.md](docs/architecture.md)。
 - `assets/css/extended/personal.css` 是唯一的站点样式，改样式只改这一个文件。
 - `params.city`、`params.email` 被多页共用；正文里的邮箱也必须与 `params.email` 一致。
 - 图标由 `python3 scripts/make-icons.py <头像图片>` 生成，换图后重跑脚本，并把 `hugo.toml` 里 `[params.assets]` 的 `?v=` 加一。

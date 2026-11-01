@@ -27,7 +27,7 @@
 scripts/preview-check.sh https://yangspec.com
 ```
 
-期望：六条路由 Performance ≥ 90、Accessibility ≥ 95、LCP ≤ 2.5 s、CLS ≤ 0.1；无 `Set-Cookie`；无第三方请求；`nosniff`、`Referrer-Policy`、`Permissions-Policy`、`X-Frame-Options: DENY` 或 `frame-ancestors 'none'` 存在。
+期望：全部 `PASS`。具体门槛与安全头要求见 [`CONSTRAINTS.md` 第 1 节](../../CONSTRAINTS.md)，这里不重复数字。
 
 另外：
 
