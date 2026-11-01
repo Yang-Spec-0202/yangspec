@@ -74,13 +74,14 @@
 3. PR 写清：改了什么、为什么、验证命令与结果；改布局时附 390 / 768 / 1440 三档截图。
 4. 合并条件：`scripts/check.sh` 通过、预览可访问、`preview-check.sh` 达标、diff 自审完成。合并由站长执行。
 5. 发布即 push `main` 触发 Cloudflare Pages。发布后 10 分钟内核对线上响应头与 `/privacy/` 的数据流描述。
-6. 回滚用 Cloudflare 的部署回滚，不靠 revert 抢时间。不 force-push 共享分支，不改写已发布历史。
+6. 发布后在 `docs/ops/releases.md` 追加一条记录，引用 `reports/` 里的检查报告；纯文档改动不单独记。
+7. 回滚用 Cloudflare 的部署回滚，不靠 revert 抢时间。不 force-push 共享分支，不改写已发布历史。
 
 ### 工程日志
 
 - 静态站没有运行时日志；不接第三方日志、监控或错误收集服务，避免与 `/privacy/` 的数据流承诺冲突。
-- 工程日志只记“发布了什么、检查结果、如何回滚”，不记访客数据。`ops-log` 模块落地后，每次合并到 `main` 的生产部署在 `docs/ops/releases.md` 追加一条：日期、commit、改动摘要、`check.sh` 结果、`preview-check.sh` 六路由结果、外链检查、回滚点、异常与处理。
-- 检查输出摘要可写到 gitignored `reports/`；仓库只提交人工摘要，不提交构建产物、截图或 Lighthouse JSON。
+- 工程日志只记“发布了什么、检查结果、如何回滚”，不记访客数据。每次改变站点输出、脚本或部署配置的生产部署，在 `docs/ops/releases.md` 追加一条：日期、commit、改动摘要、`scripts/check-record.sh --full` 结果与报告文件、`preview-check.sh` 六路由结果、外链检查、回滚点、异常与处理。纯文档改动不单独记。
+- 发布前跑 `scripts/check-record.sh --full`：完整输出写 gitignored `reports/`，仓库只提交 `releases.md` 里的人工摘要，不提交构建产物、截图或 Lighthouse JSON。
 - 日志只追加，不改写历史；回滚另起一条，写原因、影响范围与恢复时间。
 - 日志不得出现邮箱、IP、Cookie、Token、Cloudflare 账号信息；Cloudflare 访问日志只在控制台查阅，月度复核不导出个人数据。
 
@@ -109,7 +110,6 @@ Lighthouse 数字是单次实验室结果（localhost 与线上各一组），�
 
 | 项 | 现状 | 处理 | 到期 |
 |----|------|------|------|
-| 工程日志 | 规范已定；`docs/ops/releases.md` 与 `reports/` 尚未落地 | 按 `ops-log` 模块实现：先建记录模板，再在下次真实发布留第一条 | 2026-12-15 |
 | 安全头 | 2026-10-30 已由 `static/_headers` 接管，线上四项头验证通过；HSTS 未开启 | 在控制台评估 `includeSubDomains` 后再开 HSTS；改 `_headers` 后重跑 `preview-check.sh` | 2026-12-31 |
 | CSP | 只设 `frame-ancestors`、`base-uri`、`form-action`；PaperMod 有内联主题脚本 | 升级主题时再评估 hash/nonce；不为了 CSP 引入 `unsafe-inline` 脚本白名单 | 主题升级时 |
 | CI | 无 GitHub Actions，检查靠本地脚本 | 合并前手动跑；接入 CI 时把 `scripts/check.sh --full` 放进去 | 2026-12-31 |
@@ -139,6 +139,9 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 # 再加上外链检查（发布前或每月）
 scripts/check.sh --full
+
+# 发布前留存完整报告到 reports/，并把摘要写进 docs/ops/releases.md
+scripts/check-record.sh --full
 
 # 本地预览后跑运行时检查（Lighthouse + Cookie/第三方请求）
 python3 -m http.server 8099 --directory public
