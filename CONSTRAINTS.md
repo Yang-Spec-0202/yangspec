@@ -23,7 +23,7 @@
 | # | 维度 | 约束 | 为什么是这个数 | 检查命令 | 运行时机 |
 |---|------|------|----------------|----------|----------|
 | 1 | 构建 | 退出码 0，0 个 `ERROR`；只允许 1 条已知 `WARN`（PaperMod 的 `.Language.LanguageCode` 弃用） | 构建错误必须当场归零；主题弃用警告是已登记的遗留，用 `--panicOnWarning` 会把它变成错误，不能假装没看见 | `HUGO_BIN=/path/to/hugo scripts/check.sh` | 每次改动 |
-| 2 | 页面完整性 | `/`、`/about/`、`/contact/`、`/privacy/`、`404.html` 都存在；`sitemap.xml` 含四个可索引页面且不含 404 | 少一页就是线上 404；404 进 sitemap 会被搜索引擎收录 | 同上 | 每次改动 |
+| 2 | 页面完整性 | `/`、`/posts/`、`/about/`、`/contact/`、`/privacy/`、`404.html` 都存在；`sitemap.xml` 覆盖全部可索引页面且不含 404 | 少一页就是线上 404；sitemap 漏页等于搜索不到 | 同上 | 每次改动 |
 | 3 | 站内链接 | 断链 0；锚点指向存在的 `id`；无空链接、无 `href="#"` | 断链是读者唯一能立刻验证的错误 | 同上 | 每次改动 |
 | 4 | Front matter | 每篇 `content/**/*.md` 都有 `title`、`date`、`description` | 缺 `description` 会让摘要与分享卡片退化成正文截断 | 同上 | 每次改动 |
 | 5 | 身份字段 | 模板不硬编码邮箱、城市；正文出现的邮箱必须等于 `hugo.toml` 的 `params.email` | 改一次资料要改全站，是典型的“漏改一处就前后矛盾” | 同上 | 每次改动 |
@@ -48,9 +48,9 @@
 - 隐私页逐项写清：Cloudflare 侧访问日志、是否启用 Web Analytics、`localStorage` 主题偏好、邮件留存、读者如何联系。不写“绝对安全”“完全匿名”。
 - 对外文案与隐私页必须同时成立：首页说“没有第三方追踪脚本”，隐私页就不能写“使用访问统计”；反之亦然。
 
-## 3. 代码与结构规范
+## 3. 代码、结构与文档规范
 
-- 目录职责固定：`content/` 只放内容，`layouts/` 只放模板，`assets/` 放需处理的资源，`static/` 放原样发布的文件（含 `_headers`），`archive/` 不参与构建。
+- 目录职责固定：`content/` 只放内容，`layouts/` 只放模板，`assets/` 放需处理的资源，`static/` 放原样发布的文件（含 `_headers`），`docs/` 只放维护者文档且不参与构建，`archive/` 不参与构建。
 - 模板从 `baseof.html` 继承；可复用片段进 `_partials/`，不在页面模板里复制粘贴。署名、城市、邮箱一律取 `hugo.toml` 的 `params`。
 - 样式只有 `assets/css/extended/personal.css` 一个入口；颜色与间距用自定义属性，深浅两套主题共用同一组变量。
 - 新增 `!important` 必须注释原因。现有 `prefers-reduced-motion` 兜底与 `.block-more` 两处保留；改动对应区块时顺手清理。
@@ -58,29 +58,46 @@
 - 静态资源文件名用小写 kebab-case；图片给出宽高，避免 CLS；指纹化资源可长缓存，HTML 不缓存。
 - 不为一个效果引入构建链。Node 只作为检查工具（Lighthouse），不进运行时。
 
+### 文档
+
+- `docs/README.md` 是维护者文档的唯一入口，按场景索引；`docs/architecture.md` 讲渲染与目录，`docs/adr/` 记决策，`docs/ops/` 放发布与故障处理。`docs/` 不参与 Hugo 构建，也不出现在 `public/`。
+- 单一事实来源：阈值、检查项、命令只写在 `CONSTRAINTS.md`；README 与 `docs/` 链接过去，不复制数字。发布步骤只在 `docs/ops/runbook.md`，README 只留安装、最小检查和入口。
+- 文档与代码同 PR 更新：改路由、模板职责、脚本行为、目录结构时同步改对应文档；不接受“以后补”。
+- ADR 四位编号、只增不改；状态只取 `提议` / `已采纳` / `已取代（被 NNNN 取代）` / `已废弃`；决定变了新写一条，旧条目只改状态。
+- `docs/README.md` 顶部标注 `最后复核：YYYY-MM-DD`；季度评审时一并检查过期内容，先改或先删，不留在仓库里误导人。
+- 相对链接必须可达，由 `scripts/check-docs.py` 检查；文档不写账号、Token、内部地址或个人数据。
+
 ## 4. 发布流程
 
-1. 从 `main` 开工作分支：`feat/…`、`fix/…`、`content/…`、`chore/…`；一个分支一件事。
+1. 从 `main` 开工作分支：`feat/…`、`fix/…`、`content/…`、`docs/…`、`chore/…`；一个分支一件事。
 2. 提交用祈使句，说明“为什么”，不写“update”“fix bug”。一个提交只做一件事。
 3. PR 写清：改了什么、为什么、验证命令与结果；改布局时附 390 / 768 / 1440 三档截图。
 4. 合并条件：`scripts/check.sh` 通过、预览可访问、`preview-check.sh` 达标、diff 自审完成。合并由站长执行。
 5. 发布即 push `main` 触发 Cloudflare Pages。发布后 10 分钟内核对线上响应头与 `/privacy/` 的数据流描述。
 6. 回滚用 Cloudflare 的部署回滚，不靠 revert 抢时间。不 force-push 共享分支，不改写已发布历史。
 
-## 5. 基线（2026-10-30 实测）
+### 工程日志
+
+- 静态站没有运行时日志；不接第三方日志、监控或错误收集服务，避免与 `/privacy/` 的数据流承诺冲突。
+- 工程日志只记“发布了什么、检查结果、如何回滚”，不记访客数据。`ops-log` 模块落地后，每次合并到 `main` 的生产部署在 `docs/ops/releases.md` 追加一条：日期、commit、改动摘要、`check.sh` 结果、`preview-check.sh` 六路由结果、外链检查、回滚点、异常与处理。
+- 检查输出摘要可写到 gitignored `reports/`；仓库只提交人工摘要，不提交构建产物、截图或 Lighthouse JSON。
+- 日志只追加，不改写历史；回滚另起一条，写原因、影响范围与恢复时间。
+- 日志不得出现邮箱、IP、Cookie、Token、Cloudflare 账号信息；Cloudflare 访问日志只在控制台查阅，月度复核不导出个人数据。
+
+## 5. 基线（2026-11-01 复测）
 
 阈值先按现状记录，只要求“不变差”；等稳定后再收紧。工具：Hugo 0.167.0 extended、Chrome headless、Lighthouse 移动端默认节流。
 
 | 指标 | 当前值 | 方向 |
 |------|--------|------|
-| 页面数 | 8 个 Hugo 页面，5 个 HTML（4 路由 + 404） | 不得无故减少 |
-| 构建耗时 | 约 20–45 ms | 不得明显变慢 |
-| HTML（gzip） | 首页 2.7 KB / 关于 3.1 KB / 隐私 3.3 KB | 单页不得增长 > 10% |
-| CSS（gzip） | 6.3 KB | 不得增长 > 10% |
+| 页面数 | 11 个 Hugo 页面，7 个 HTML（6 个可索引路由 + 404） | 不得无故减少 |
+| 构建耗时 | 约 40–70 ms | 不得明显变慢 |
+| HTML（gzip） | 首页 2.9 KB / 文章列表 2.4 KB / 文章 3.2 KB / 关于 3.1 KB / 联系 2.7 KB / 隐私 3.3 KB | 单页不得增长 > 10% |
+| CSS（gzip） | 6.6 KB | 不得增长 > 10% |
 | 首方 JS（gzip） | ≈0.2–0.3 KB | 不得增长 |
-| Lighthouse 移动端（localhost） | 四个页面均 100 / 100 / 100 / 100；LCP 0.6–0.8 s；CLS 0；TBT 0 ms | Performance 不得跌破 90 |
-| Lighthouse 移动端（线上） | 2026-10-30：Performance 99–100，Accessibility 100，LCP 0.8–1.1 s，CLS 0 | 同上 |
-| 站内链接 | 0 断链 | 必须保持 0 |
+| Lighthouse 移动端（localhost） | 六条路由均 100 / 100 / 100 / 100；LCP 0.63–0.78 s；CLS 0；TBT 0 ms | Performance 不得跌破 90 |
+| Lighthouse 移动端（线上） | 2026-11-01：六条路由 Performance 100，Accessibility 100，LCP 0.81–1.06 s，CLS 0 | 同上 |
+| 站内链接 | 0 断链（7 个 HTML） | 必须保持 0 |
 | 外链 | 3 个，均 200 | 失效数只降不升 |
 | 正文对比度 | 5.7:1 – 12.6:1（深浅两套） | 正文 ≥ 4.5:1 |
 | 站点 `Set-Cookie` | 线上 HEAD 未见 | 必须保持 0 |
@@ -92,6 +109,7 @@ Lighthouse 数字是单次实验室结果（localhost 与线上各一组），�
 
 | 项 | 现状 | 处理 | 到期 |
 |----|------|------|------|
+| 工程日志 | 规范已定；`docs/ops/releases.md` 与 `reports/` 尚未落地 | 按 `ops-log` 模块实现：先建记录模板，再在下次真实发布留第一条 | 2026-12-15 |
 | 安全头 | 2026-10-30 已由 `static/_headers` 接管，线上四项头验证通过；HSTS 未开启 | 在控制台评估 `includeSubDomains` 后再开 HSTS；改 `_headers` 后重跑 `preview-check.sh` | 2026-12-31 |
 | CSP | 只设 `frame-ancestors`、`base-uri`、`form-action`；PaperMod 有内联主题脚本 | 升级主题时再评估 hash/nonce；不为了 CSP 引入 `unsafe-inline` 脚本白名单 | 主题升级时 |
 | CI | 无 GitHub Actions，检查靠本地脚本 | 合并前手动跑；接入 CI 时把 `scripts/check.sh --full` 放进去 | 2026-12-31 |
@@ -116,7 +134,7 @@ Lighthouse 数字是单次实验室结果（localhost 与线上各一组），�
 ## 9. 怎么跑
 
 ```bash
-# 构建 + 静态检查（页面、链接、Front matter、身份、隐私、体积）
+# 构建 + 静态检查（页面、链接、Front matter、身份、隐私、体积、文档链接）
 HUGO_BIN=/path/to/hugo scripts/check.sh
 
 # 再加上外链检查（发布前或每月）
