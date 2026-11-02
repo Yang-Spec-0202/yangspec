@@ -34,3 +34,11 @@
 - 生产：六条路由 Performance 100 / Accessibility 100，LCP 0.816–1.054 s，CLS 0；无 `Set-Cookie`，第三方请求仅 Cloudflare Web Analytics beacon，安全头齐全。
 - 回滚点：`673813e`（PR #9 合并）。
 - 异常：无。仅文档与检查脚本变化，站点输出未变。
+
+### 2026-11-02 · bf41f95 · 文章分页、按年归档与文章导航
+
+- 改动：PR #11（`feat/writing`）给 `/posts/` 增加分页（每页 8 篇），新增 `/archives/` 按年归档，文章页增加上一篇/下一篇与最后更新；`check.py` 增加分页结构、归档覆盖、邻居链与 lastmod 渲染检查，`preview-check.sh` 覆盖七条路由；决策记入 ADR 0004。
+- 检查：`scripts/check-record.sh --full` → 退出码 0，`check.py` 15 项 PASS（含外链 3 个可达）+ `check-docs.py` 5 项 PASS，Hugo 12 页、站内 0 断链；报告 `reports/check-20261102T131315.txt`。
+- 生产：七条路由 Performance 97–100（最低 `/posts/` 97）/ Accessibility 100，LCP 0.83–1.11 s，CLS 0，TBT 0 ms；无 `Set-Cookie`，第三方请求仅 Cloudflare Web Analytics beacon，安全头齐全。
+- 回滚点：`9de7f13`（合并前的 `main`）。
+- 异常：无。上线后 `/archives/`、文章页与 sitemap 均与构建一致；`/posts/page/1/` 是指向 `/posts/` 的别名，不进 sitemap。
