@@ -55,7 +55,7 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 - 唯一站点样式入口：`assets/css/extended/personal.css`，与 PaperMod 样式一起打包、压缩、指纹化。
 - 颜色、间距、字体走 `:root` 自定义属性；深色主题由 `:root[data-theme="dark"]` 覆盖同名变量。新增组件只用变量，否则深色模式会漏。
-- JS 只有 `assets/js/site.js`：主题切换 + `localStorage` 的 `pref-theme`；无 JS 时正文、导航仍可用。
+- JS 只有 `assets/js/site.js`：主题切换 + `localStorage` 的 `pref-theme`；按钮名称用中文描述下一步动作，图标表示点击后的目标主题（亮色显示月亮、暗色显示太阳），无 JS 时静态名称仍然准确，正文、导航仍可用。
 - 除已登记的两处外不新增 `!important`；确需使用必须注释原因。
 - 图标由 `scripts/make-icons.py <头像图片>` 从头像生成并写入 `static/`；换图后重跑脚本，并递增 `hugo.toml` 里 `[params.assets]` 的 `?v=`。`safari-pinned-tab.svg` 是单色 Y 形蒙版，只用于 Safari 固定标签页；头像转单色蒙版会糊，暂不自动生成。
 
