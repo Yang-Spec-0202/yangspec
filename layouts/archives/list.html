@@ -1,0 +1,30 @@
+{{ define "main" }}
+{{- $posts := where site.RegularPages "Section" "posts" -}}
+<div class="wrap">
+  <section class="page list-page archive-page" aria-labelledby="archives-title">
+    {{ partial "page-header.html" (dict "eyebrow" "ARCHIVE · 归档" "title" .Title "id" "archives-title" "lede" .Description) }}
+
+    {{ if $posts }}
+    {{ range $posts.GroupByDate "2006" }}
+    <section class="archive-group" aria-labelledby="archive-year-{{ .Key }}">
+      <h2 class="archive-year" id="archive-year-{{ .Key }}">{{ .Key }} 年<span class="archive-count">{{ len .Pages }} 篇</span></h2>
+      <ol class="archive-list">
+        {{ range .Pages }}
+        <li class="archive-item">
+          <a class="archive-link" href="{{ .RelPermalink }}">
+            <time class="archive-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "01-02" }}</time>
+            <span class="archive-title">{{ .Title }}</span>
+          </a>
+        </li>
+        {{ end }}
+      </ol>
+    </section>
+    {{ end }}
+    {{ else }}
+    <p class="post-empty">还没有文章。</p>
+    {{ end }}
+
+    <p class="list-aside"><a class="text-link" href="{{ "/posts/" | relURL }}">回到文章列表 <span aria-hidden="true">→</span></a></p>
+  </section>
+</div>
+{{ end }}

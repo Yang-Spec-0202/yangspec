@@ -5,7 +5,7 @@
 也可以单独运行：python3 scripts/check.py public [--external]
 
 检查项：
-  1. 必需页面与 sitemap
+  1. 必需页面与 sitemap（分页页不进 sitemap）
   2. 站内链接、锚点、空链接
   3. 外部脚本、混合内容、外部图片
   4. Front matter 必填字段
@@ -13,7 +13,11 @@
   6. 源码隐私（Cookie、第三方统计、localStorage 用途）
   7. 未完成占位
   8. 单页传输量与 JS 预算
-  9. 外链状态（--external）
+  9. 分页结构（页数、每页篇数、页码链、不重不漏）
+  10. 归档覆盖（按年分组、不重不漏、只输出 HTML）
+  11. 上一篇/下一篇链
+  12. 文章最后更新渲染
+  13. 外链状态（--external）
 """
 
 from __future__ import annotations
@@ -37,9 +41,27 @@ REQUIRED_PAGES = [
     "contact/index.html",
     "privacy/index.html",
     "posts/index.html",
+    "archives/index.html",
     "404.html",
 ]
 SKIP_DIRS = {"archive", "themes", ".git", "public", "resources", "node_modules"}
+
+# 每页文章数记录在 docs/adr/0004；这里作为契约校验，防止配置回退成 Hugo 默认值。
+EXPECTED_PAGER_SIZE = 8
+# Hugo 会为分页生成 /posts/page/<n>/（含指向 /posts/ 的 page/1 别名），sitemap 不含分页页。
+PAGINATION_ARTIFACT_RE = re.compile(r"(?:^|/)page/\d+/index\.html$")
+POST_HREF_RE = re.compile(r"^/posts/(?!page(?:/|$))([^/]+)/$")
+DATE_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})")
+PAGINATION_NAV_RE = re.compile(r"<nav[^>]*class=\"pagination\"[^>]*>(.*?)</nav>", re.S)
+CURRENT_PAGE_RE = re.compile(r"<span[^>]*class=\"pagination-current\"[^>]*>\s*(\d+)\s*</span>")
+PAGER_LINK_RE = re.compile(r"<a[^>]*href=\"([^\"]+)\"[^>]*>\s*(\d+)\s*</a>")
+ARCHIVE_YEAR_RE = re.compile(r"<h2[^>]*class=\"archive-year\"[^>]*>", re.S)
+YEAR_ID_RE = re.compile(r"id=\"archive-year-(\d{4})\"")
+ARCHIVE_COUNT_RE = re.compile(r"(\d+)\s*篇")
+ANCHOR_RE = re.compile(r"<a\b[^>]*\bhref=\"([^\"]+)\"[^>]*>", re.I)
+POST_NAV_RE = re.compile(r"<nav[^>]*class=\"post-nav\"[^>]*>(.*?)</nav>", re.S)
+POST_UPDATED_RE = re.compile(r"<p[^>]*class=\"post-updated\"[^>]*>(.*?)</p>", re.S)
+TIME_DATE_RE = re.compile(r"<time[^>]*datetime=\"(\d{4}-\d{2}-\d{2})\"")
 
 FAILS: list[str] = []
 WARNS: list[str] = []
@@ -124,6 +146,96 @@ def load_params() -> tuple[str, str]:
     return (email.group(1) if email else "", city.group(1) if city else "")
 
 
+def front_matter(path: Path) -> dict[str, str]:
+    """读取 Front matter 的顶层标量字段；不解析嵌套结构。"""
+    text = read_text(path)
+    if not text.startswith("---"):
+        return {}
+    end = text.find("\n---", 3)
+    if end == -1:
+        return {}
+    fields: dict[str, str] = {}
+    for line in text[3:end].splitlines():
+        match = re.match(r"^([A-Za-z][A-Za-z0-9_-]*)\s*:\s*(.+?)\s*$", line)
+        if not match:
+            continue
+        fields[match.group(1)] = match.group(2).strip().strip('"').strip("'")
+    return fields
+
+
+def date_part(value: str | None) -> str:
+    """把 Front matter 日期归一成 YYYY-MM-DD。"""
+    if not value:
+        return ""
+    match = DATE_RE.match(value.strip().strip('"').strip("'"))
+    return match.group(1) if match else ""
+
+
+def load_posts() -> dict[str, dict[str, str]]:
+    """content/posts/*.md → /posts/<slug>/ 的 Front matter 摘要。"""
+    posts: dict[str, dict[str, str]] = {}
+    for path in sorted((ROOT / "content" / "posts").glob("*.md")):
+        if path.name == "_index.md":
+            continue
+        fields = front_matter(path)
+        slug = fields.get("slug") or path.stem
+        posts[f"/posts/{slug}/"] = {
+            "file": path.relative_to(ROOT).as_posix(),
+            "date": date_part(fields.get("date")),
+            "lastmod": date_part(fields.get("lastmod")),
+        }
+    return posts
+
+
+def built_posts(site: Path) -> dict[str, Path]:
+    """构建产物里的文章页：/posts/<slug>/ → 相对路径。"""
+    posts: dict[str, Path] = {}
+    for path in sorted(site.glob("posts/*/index.html")):
+        relative = path.relative_to(site)
+        parts = relative.parts
+        if len(parts) == 3 and parts[1] != "page":
+            posts[f"/posts/{parts[1]}/"] = relative
+    return posts
+
+
+def resolved_post_meta(
+    posts: dict[str, dict[str, str]], built: dict[str, Path]
+) -> dict[str, dict[str, str]]:
+    """把构建出来的文章对回内容源；对不上就报错，避免顺序校验静默跳过。"""
+    resolved: dict[str, dict[str, str]] = {}
+    unmatched: list[str] = []
+    for url in sorted(built):
+        meta = posts.get(url)
+        if meta is None or not meta["date"]:
+            unmatched.append(url)
+        else:
+            resolved[url] = meta
+    if unmatched:
+        fail("构建产物中的文章在 content/posts 找不到可用的 Front matter：" + ", ".join(unmatched))
+    return resolved
+
+
+def post_slugs(parser: PageParser) -> list[str]:
+    """列表页里 /posts/<slug>/ 形式的文章链接，按出现顺序返回。"""
+    slugs: list[str] = []
+    for tag, attr, value in parser.refs:
+        if tag != "a" or attr != "href":
+            continue
+        match = POST_HREF_RE.match(urlsplit(value).path)
+        if match:
+            slugs.append(match.group(1))
+    return slugs
+
+
+def normalize_post_url(value: str) -> str:
+    path = urlsplit(value).path
+    if not path.startswith("/"):
+        path = "/" + path
+    if not path.endswith("/"):
+        path += "/"
+    return path
+
+
 def check_pages(site: Path) -> dict[Path, PageParser]:
     pages: dict[Path, PageParser] = {}
     for rel in REQUIRED_PAGES:
@@ -140,12 +252,14 @@ def check_pages(site: Path) -> dict[Path, PageParser]:
     sitemap = site / "sitemap.xml"
     if sitemap.is_file():
         locations = re.findall(r"<loc>(.*?)</loc>", read_text(sitemap))
-        required = {"/", "/about/", "/contact/", "/privacy/", "/posts/"}
+        required = {"/", "/about/", "/contact/", "/privacy/", "/posts/", "/archives/"}
         found = {urlsplit(url).path or "/" for url in locations}
         # 构建产物里的每个 index.html 都应有条目，sitemap 也不应指向不存在的页面。
+        # 分页页（/posts/page/<n>/）与 page/1 别名不进 sitemap，必须排除。
         indexable = {
             "/" + path.relative_to(site).as_posix()[: -len("index.html")]
             for path in site.rglob("index.html")
+            if not PAGINATION_ARTIFACT_RE.search(path.relative_to(site).as_posix())
         }
         missing = required - found
         omitted = indexable - found
@@ -159,7 +273,7 @@ def check_pages(site: Path) -> dict[Path, PageParser]:
         if "/404.html" in found:
             fail("sitemap 不应包含 404.html")
         if not (missing or omitted or unknown or "/404.html" in found):
-            ok(f"sitemap 覆盖全部 {len(found)} 个可索引页面（不含 404）")
+            ok(f"sitemap 覆盖全部 {len(found)} 个可索引页面（不含分页页与 404）")
     else:
         fail("缺少 sitemap.xml")
     return pages
@@ -362,6 +476,389 @@ def check_stubs() -> None:
         ok("没有 TODO/FIXME 占位")
 
 
+def load_pager_size() -> int | None:
+    """读 hugo.toml 的 [pagination] pagerSize，并校验与 ADR 0004 的决定一致。"""
+    text = read_text(ROOT / "hugo.toml")
+    block = re.search(r"(?ms)^\[pagination\]\s*$(.*?)(?=^\[|\Z)", text)
+    match = re.search(r"(?m)^\s*pagerSize\s*=\s*(\d+)\s*$", block.group(1)) if block else None
+    if not match:
+        fail(f"hugo.toml 缺少 [pagination] pagerSize = {EXPECTED_PAGER_SIZE}（见 docs/adr/0004）")
+        return None
+    size = int(match.group(1))
+    if size != EXPECTED_PAGER_SIZE:
+        fail(
+            f"hugo.toml 的 pagerSize = {size}，与 docs/adr/0004 记录的每页 "
+            f"{EXPECTED_PAGER_SIZE} 篇不一致"
+        )
+        return None
+    return size
+
+
+def pagination_page_numbers(site: Path) -> list[int]:
+    numbers: list[int] = []
+    for path in site.glob("posts/page/*/index.html"):
+        parts = path.relative_to(site).parts
+        if len(parts) == 4 and parts[2].isdigit():
+            numbers.append(int(parts[2]))
+    return sorted(numbers)
+
+
+def page_number_from_href(href: str) -> int | None:
+    path = urlsplit(href).path
+    if path.rstrip("/") == "/posts":
+        return 1
+    match = re.match(r"^/posts/page/(\d+)/$", path)
+    return int(match.group(1)) if match else None
+
+
+def check_pagination(site: Path, pages: dict[Path, PageParser], built: dict[str, Path]) -> None:
+    pager = load_pager_size()
+    if pager is None:
+        return
+
+    total = len(built)
+    expected_pages = (total + pager - 1) // pager
+    numbers = pagination_page_numbers(site)
+    list_rel = Path("posts/index.html")
+    if list_rel not in pages:
+        fail("缺少 /posts/ 列表页，无法检查分页结构")
+        return
+
+    problems: list[str] = []
+
+    if expected_pages <= 1:
+        extra = [number for number in numbers if number >= 2]
+        if extra:
+            problems.append("文章不足一页，不应生成分页页：" + ", ".join(map(str, extra)))
+        if PAGINATION_NAV_RE.search(read_text(site / list_rel)):
+            problems.append("只有一页时不应渲染分页导航")
+    else:
+        missing_pages = [number for number in range(2, expected_pages + 1) if number not in numbers]
+        if missing_pages:
+            problems.append(
+                "分页页缺失：" + ", ".join(f"/posts/page/{number}/" for number in missing_pages)
+            )
+        unexpected = [number for number in numbers if number > expected_pages]
+        if unexpected:
+            problems.append(
+                f"分页页数超出预期（{total} 篇 / 每页 {pager} 篇 = {expected_pages} 页）："
+                + ", ".join(map(str, unexpected))
+            )
+
+        page_sets: dict[int, list[str]] = {}
+        list_pages: list[tuple[int, Path]] = [(1, list_rel)] + [
+            (number, Path(f"posts/page/{number}/index.html"))
+            for number in range(2, expected_pages + 1)
+        ]
+        for number, relative in list_pages:
+            parser = pages.get(relative)
+            if parser is None:
+                problems.append(f"缺少列表页 {relative.as_posix()}，无法核对第 {number} 页")
+                continue
+            slugs = post_slugs(parser)
+            page_sets[number] = slugs
+            expected_count = (
+                pager if number < expected_pages else total - pager * (expected_pages - 1)
+            )
+            if len(slugs) != expected_count:
+                problems.append(
+                    f"第 {number} 页显示 {len(slugs)} 篇，每页 {pager} 篇时应为 {expected_count} 篇"
+                )
+            if len(slugs) != len(set(slugs)):
+                problems.append(f"第 {number} 页有重复的文章链接")
+
+            block = PAGINATION_NAV_RE.search(read_text(site / relative))
+            if block is None:
+                problems.append(f"第 {number} 页缺少分页导航")
+                continue
+            current = CURRENT_PAGE_RE.search(block.group(1))
+            if current is None or int(current.group(1)) != number:
+                problems.append(f"第 {number} 页的当前页标记不正确")
+            targets: dict[int, int] = {}
+            for href, label in PAGER_LINK_RE.findall(block.group(1)):
+                target = page_number_from_href(href)
+                if target is None:
+                    problems.append(f"第 {number} 页有无法识别的分页链接 {href}")
+                    continue
+                targets[int(label)] = target
+            # 当前页用 span 标记，其余页才是链接：两者合起来必须覆盖全部页码。
+            labels = set(targets)
+            if current is not None:
+                labels.add(int(current.group(1)))
+            if sorted(labels) != list(range(1, expected_pages + 1)):
+                problems.append(f"第 {number} 页页码不全（应为 1–{expected_pages}）")
+            for label, target in sorted(targets.items()):
+                if label != target:
+                    problems.append(f"第 {number} 页的页码 {label} 指向第 {target} 页")
+
+        covered = [slug for slugs in page_sets.values() for slug in slugs]
+        built_slugs = {url.strip("/").split("/")[-1] for url in built}
+        if len(covered) != len(set(covered)):
+            problems.append("分页列表出现重复文章")
+        missing_slugs = built_slugs - set(covered)
+        if missing_slugs:
+            problems.append("分页列表漏掉文章：" + ", ".join(sorted(missing_slugs)))
+        extra_slugs = set(covered) - built_slugs
+        if extra_slugs:
+            problems.append("分页列表包含不存在的文章：" + ", ".join(sorted(extra_slugs)))
+
+    for problem in problems:
+        fail("分页：" + problem)
+    if not problems:
+        if expected_pages <= 1:
+            ok(f"分页结构正确（{total} 篇文章，1 页，未渲染分页导航）")
+        else:
+            ok(f"分页结构正确（{total} 篇 / 每页 {pager} 篇 / {expected_pages} 页，不重不漏）")
+
+
+def has_archive_entry(parser: PageParser) -> bool:
+    for tag, attr, value in parser.refs:
+        if tag != "a" or attr != "href":
+            continue
+        if urlsplit(value).path.rstrip("/") == "/archives":
+            return True
+    return False
+
+
+def check_archives(
+    site: Path,
+    pages: dict[Path, PageParser],
+    built: dict[str, Path],
+    posts: dict[str, dict[str, str]],
+    resolved: dict[str, dict[str, str]],
+) -> None:
+    archive_rel = Path("archives/index.html")
+    if archive_rel not in pages:
+        fail("缺少 /archives/ 归档页，无法检查归档覆盖")
+        return
+
+    problems: list[str] = []
+    archive_dir = site / "archives"
+    if (archive_dir / "index.xml").is_file():
+        problems.append("只应输出 HTML，不应生成 /archives/index.xml")
+    if any((archive_dir / "page").glob("*/index.html")):
+        problems.append("归档页不应分页")
+
+    html = read_text(site / archive_rel)
+    headings = list(ARCHIVE_YEAR_RE.finditer(html))
+    if not headings:
+        fail("归档页缺少年份分组标题")
+        return
+
+    groups: list[dict[str, object]] = []
+    for index, match in enumerate(headings):
+        tag = match.group(0)
+        strip = html.find("</h2>", match.end())
+        heading_text = html[match.end() : strip] if strip != -1 else ""
+        year_match = YEAR_ID_RE.search(tag) or re.search(r"(\d{4})\s*年", heading_text)
+        if year_match is None:
+            problems.append("有年份分组标题缺少年份")
+            continue
+        count_match = ARCHIVE_COUNT_RE.search(heading_text)
+        groups.append(
+            {
+                "year": year_match.group(1),
+                "start": strip + len("</h2>") if strip != -1 else match.end(),
+                "end": headings[index + 1].start() if index + 1 < len(headings) else len(html),
+                "count": int(count_match.group(1)) if count_match else None,
+            }
+        )
+
+    expected_by_year: dict[str, set[str]] = {}
+    for url in built:
+        meta = resolved.get(url)
+        if meta is None:
+            continue
+        expected_by_year.setdefault(meta["date"][:4], set()).add(url.strip("/").split("/")[-1])
+
+    seen_years: list[str] = []
+    all_seen: list[str] = []
+    for group in groups:
+        year = str(group["year"])
+        seen_years.append(year)
+        slugs: list[str] = []
+        for match in ANCHOR_RE.finditer(html, int(group["start"]), int(group["end"])):
+            post_match = POST_HREF_RE.match(urlsplit(match.group(1)).path)
+            if post_match:
+                slugs.append(post_match.group(1))
+        all_seen.extend(slugs)
+        if len(slugs) != len(set(slugs)):
+            problems.append(f"{year} 年有重复文章链接")
+        expected = expected_by_year.get(year, set())
+        missing = expected - set(slugs)
+        extra = set(slugs) - expected
+        if missing:
+            problems.append(f"{year} 年漏掉文章：" + ", ".join(sorted(missing)))
+        if extra:
+            problems.append(f"{year} 年多出文章：" + ", ".join(sorted(extra)))
+        if group["count"] is not None and int(group["count"]) != len(slugs):
+            problems.append(f"{year} 年的篇数标注与文章链接数不一致")
+
+    expected_years = sorted(expected_by_year, reverse=True)
+    if seen_years != expected_years:
+        missing_years = sorted(set(expected_years) - set(seen_years), reverse=True)
+        extra_years = sorted(set(seen_years) - set(expected_years), reverse=True)
+        if missing_years:
+            problems.append("缺少年份分组：" + ", ".join(missing_years))
+        if extra_years:
+            problems.append("多出年份分组：" + ", ".join(extra_years))
+    if len(all_seen) != len(set(all_seen)):
+        problems.append("同一篇文章在多个年份分组中重复出现")
+
+    expected_slugs = {url.strip("/").split("/")[-1] for url in built}
+    if set(all_seen) != expected_slugs:
+        missing = expected_slugs - set(all_seen)
+        if missing:
+            problems.append("归档漏掉文章：" + ", ".join(sorted(missing)))
+        extra = set(all_seen) - expected_slugs
+        if extra:
+            problems.append("归档包含不存在的文章：" + ", ".join(sorted(extra)))
+
+    # 归档入口：列表页尾部链接 + 页脚（首页可见）。
+    for relative in (Path("posts/index.html"), Path("index.html")):
+        parser = pages.get(relative)
+        if parser is not None and not has_archive_entry(parser):
+            problems.append(f"{relative.as_posix()} 缺少 /archives/ 入口链接")
+
+    for problem in problems:
+        fail("归档：" + problem)
+    if not problems:
+        ok(
+            f"归档覆盖全部 {len(built)} 篇文章"
+            f"（{len(groups)} 个年份分组，倒序，只输出 HTML）"
+        )
+
+
+def post_nav_links(html: str) -> tuple[str | None, str | None, list[str]]:
+    """解析文章页的上一篇/下一篇导航；返回 (prev, next, 结构问题)。"""
+    block = POST_NAV_RE.search(html)
+    if block is None:
+        return (None, None, [])
+    prev_href: str | None = None
+    next_href: str | None = None
+    problems: list[str] = []
+    for match in ANCHOR_RE.finditer(block.group(1)):
+        attrs = match.group(0)
+        href_match = re.search(r'href="([^"]*)"', attrs)
+        rel_match = re.search(r'rel="([^"]*)"', attrs)
+        if href_match is None:
+            problems.append("导航链接缺少 href")
+            continue
+        rels = set(rel_match.group(1).split()) if rel_match else set()
+        if "prev" in rels:
+            if prev_href is not None:
+                problems.append("出现多个 rel=prev")
+            prev_href = href_match.group(1)
+        elif "next" in rels:
+            if next_href is not None:
+                problems.append("出现多个 rel=next")
+            next_href = href_match.group(1)
+        else:
+            problems.append("导航链接缺少 rel=prev/next")
+    return (prev_href, next_href, problems)
+
+
+def check_post_navigation(
+    site: Path,
+    built: dict[str, Path],
+    resolved: dict[str, dict[str, str]],
+) -> None:
+    total = len(built)
+    if total == 0:
+        ok("没有文章，跳过上一篇/下一篇检查")
+        return
+
+    problems: list[str] = []
+    edges: dict[str, dict[str, str | None]] = {}
+    for url, relative in sorted(built.items()):
+        prev_href, next_href, structure_problems = post_nav_links(read_text(site / relative))
+        for message in structure_problems:
+            problems.append(f"{url}: {message}")
+        prev_url = normalize_post_url(prev_href) if prev_href else None
+        next_url = normalize_post_url(next_href) if next_href else None
+        for label, target in (("上一篇", prev_url), ("下一篇", next_url)):
+            if target is not None and target not in built:
+                problems.append(f"{url}: {label}链接指向不存在的文章 {target}")
+        edges[url] = {"prev": prev_url, "next": next_url}
+
+    if total == 1:
+        url = next(iter(built))
+        if edges[url]["prev"] or edges[url]["next"]:
+            problems.append("只有一篇文章时不应渲染上一篇/下一篇")
+        for problem in problems:
+            fail("文章导航：" + problem)
+        if not problems:
+            ok("上一篇/下一篇正确（1 篇文章，无邻居导航）")
+        return
+
+    dates = [resolved[url]["date"] for url in built if url in resolved]
+    unique_dates = len(dates) == total and len(set(dates)) == total
+    if unique_dates:
+        order = sorted(built, key=lambda url: resolved[url]["date"], reverse=True)
+        for index, url in enumerate(order):
+            expected_prev = order[index + 1] if index + 1 < total else None
+            expected_next = order[index - 1] if index > 0 else None
+            if edges[url]["prev"] != expected_prev:
+                problems.append(
+                    f"{url}: 上一篇应为 {expected_prev or '无（已是最早一篇）'}，"
+                    f"实际为 {edges[url]['prev'] or '无'}"
+                )
+            if edges[url]["next"] != expected_next:
+                problems.append(
+                    f"{url}: 下一篇应为 {expected_next or '无（已是最新一篇）'}，"
+                    f"实际为 {edges[url]['next'] or '无'}"
+                )
+    else:
+        warn("文章日期有重复或缺失，只校验上下篇链的结构一致性，不校验先后方向")
+        nexts = [edges[url]["next"] for url in built]
+        prevs = [edges[url]["prev"] for url in built]
+        if sum(1 for value in nexts if value is None) != 1:
+            problems.append("应恰好有一篇最新文章没有下一篇")
+        if sum(1 for value in prevs if value is None) != 1:
+            problems.append("应恰好有一篇最早文章没有上一篇")
+        for url in built:
+            next_url = edges[url]["next"]
+            if next_url is not None and edges.get(next_url, {}).get("prev") != url:
+                problems.append(f"{url}: 下一篇 {next_url} 的上一篇没有指回来")
+            prev_url = edges[url]["prev"]
+            if prev_url is not None and edges.get(prev_url, {}).get("next") != url:
+                problems.append(f"{url}: 上一篇 {prev_url} 的下一篇没有指回来")
+
+    for problem in problems:
+        fail("文章导航：" + problem)
+    if not problems:
+        ok(f"上一篇/下一篇链正确（{total} 篇，首末篇无多余邻居）")
+
+
+def check_post_updated(
+    site: Path,
+    built: dict[str, Path],
+    resolved: dict[str, dict[str, str]],
+) -> None:
+    problems: list[str] = []
+    checked = 0
+    for url, relative in sorted(built.items()):
+        meta = resolved.get(url)
+        if meta is None:
+            continue
+        checked += 1
+        block = POST_UPDATED_RE.search(read_text(site / relative))
+        lastmod = meta["lastmod"]
+        needed = bool(lastmod) and lastmod != meta["date"]
+        if needed and block is None:
+            problems.append(f"{url}: 有 lastmod（{lastmod}）却没有渲染最后更新")
+        elif not needed and block is not None:
+            problems.append(f"{url}: date 与 lastmod 相同或没有 lastmod，不应渲染最后更新")
+        elif needed and block is not None:
+            time_match = TIME_DATE_RE.search(block.group(1))
+            if time_match is None or time_match.group(1) != lastmod:
+                problems.append(f"{url}: 最后更新日期与 lastmod {lastmod} 不一致")
+    for problem in problems:
+        fail("最后更新：" + problem)
+    if not problems:
+        ok(f"最后更新渲染与 Front matter 一致（{checked} 篇文章）")
+
+
 def check_weight(site: Path, pages: dict[Path, PageParser]) -> None:
     heaviest = (0, "")
     js_total: dict[Path, int] = {}
@@ -451,6 +948,13 @@ def main() -> int:
     check_identity(city, email)
     check_privacy()
     check_stubs()
+    built = built_posts(site)
+    posts = load_posts()
+    resolved = resolved_post_meta(posts, built)
+    check_pagination(site, pages, built)
+    check_archives(site, pages, built, posts, resolved)
+    check_post_navigation(site, built, resolved)
+    check_post_updated(site, built, resolved)
     check_weight(site, pages)
     if args.external:
         check_external(external)

@@ -1,11 +1,12 @@
 {{ define "main" }}
+{{- $paginator := .Paginate .Pages -}}
 <div class="wrap">
   <section class="page list-page" aria-labelledby="posts-title">
     {{ partial "page-header.html" (dict "eyebrow" "WRITING · 文章" "title" .Title "id" "posts-title" "lede" .Description) }}
 
-    {{ if .Pages }}
+    {{ if $paginator.Pages }}
     <ol class="post-list">
-      {{ range .Pages }}
+      {{ range $paginator.Pages }}
       <li class="post-item">
         <a class="post-link" href="{{ .RelPermalink }}">
           <time class="post-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format (site.Params.DateFormat | default "2006-01-02") }}</time>
@@ -15,9 +16,12 @@
       </li>
       {{ end }}
     </ol>
+    {{ partial "pagination.html" $paginator }}
     {{ else }}
     <p class="post-empty">还没有文章。</p>
     {{ end }}
+
+    <p class="list-aside"><a class="text-link" href="{{ "/archives/" | relURL }}">按年浏览全部文章 <span aria-hidden="true">→</span></a></p>
   </section>
 </div>
 {{ end }}
