@@ -48,7 +48,7 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 - `/posts/` 用 `.Paginate` 分页；Hugo 生成 `/posts/page/<n>/`，其中 `/posts/page/1/` 是指向 `/posts/` 的别名。分页页不进 `sitemap.xml`，也不应被当成可索引页面。
 - 文章页按日期给出上一篇（更早，`.PrevInSection`）与下一篇（更新，`.NextInSection`）；`lastmod` 与 `date` 不同才渲染“最后更新”。
 - 归档页 `/archives/` 用 `GroupByDate "2006"` 按年倒序分组；`content/archives/_index.md` 的 `outputs: ["html"]` 让归档只产出 HTML，没有 `/archives/index.xml`。
-- 表格由 `layouts/_markup/render-table.html` 包裹滚动容器，保证窄屏可读。
+- 表格由 `layouts/_markup/render-table.html` 包裹横向滚动容器；提示与区域名称为中文，窄屏可在框内左右滚动（`tabindex="0"` + `role="region"` 让其可聚焦、可键盘滚动）。
 - RSS 由 Hugo 自动生成（首页与文章栏目），页面没有可见入口；需要时手动用 `/posts/index.xml`。归档页只输出 HTML，没有 RSS。
 
 ## 样式与脚本
