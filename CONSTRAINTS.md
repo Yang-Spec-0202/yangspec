@@ -85,20 +85,20 @@
 - 日志只追加，不改写历史；回滚另起一条，写原因、影响范围与恢复时间。
 - 日志不得出现邮箱、IP、Cookie、Token、Cloudflare 账号信息；Cloudflare 访问日志只在控制台查阅，月度复核不导出个人数据。
 
-## 5. 基线（2026-11-01 复测）
+## 5. 基线（2026-11-02 复测）
 
 阈值先按现状记录，只要求“不变差”；等稳定后再收紧。工具：Hugo 0.167.0 extended、Chrome headless、Lighthouse 移动端默认节流。
 
 | 指标 | 当前值 | 方向 |
 |------|--------|------|
-| 页面数 | 11 个 Hugo 页面，7 个 HTML（6 个可索引路由 + 404） | 不得无故减少 |
-| 构建耗时 | 约 40–70 ms | 不得明显变慢 |
-| HTML（gzip） | 首页 2.9 KB / 文章列表 2.4 KB / 文章 3.2 KB / 关于 3.1 KB / 联系 2.7 KB / 隐私 3.3 KB | 单页不得增长 > 10% |
-| CSS（gzip） | 6.6 KB | 不得增长 > 10% |
+| 页面数 | 12 个 Hugo 页面，8 个 HTML（7 个可索引路由 + 404），另有 `/posts/page/1/` 跳转别名 | 不得无故减少 |
+| 构建耗时 | 约 30–60 ms | 不得明显变慢 |
+| HTML（gzip） | 首页 2.9 KB / 文章列表 2.4 KB / 文章 3.2 KB / 归档 2.3 KB / 关于 3.1 KB / 联系 2.7 KB / 隐私 3.3 KB | 单页不得增长 > 10% |
+| CSS（gzip） | 7.0 KB | 不得增长 > 10% |
 | 首方 JS（gzip） | ≈0.2–0.3 KB | 不得增长 |
-| Lighthouse 移动端（localhost） | 六条路由均 100 / 100 / 100 / 100；LCP 0.63–0.78 s；CLS 0；TBT 0 ms | Performance 不得跌破 90 |
-| Lighthouse 移动端（线上） | 2026-11-01：六条路由 Performance 100，Accessibility 100，LCP 0.81–1.06 s，CLS 0 | 同上 |
-| 站内链接 | 0 断链（7 个 HTML） | 必须保持 0 |
+| Lighthouse 移动端（localhost） | 七条路由均 100 / 100 / 100 / 100；LCP 0.63–0.78 s；CLS 0；TBT 0 ms | Performance 不得跌破 90 |
+| Lighthouse 移动端（线上） | 2026-11-02：七条路由 Performance 97–100（最低 `/posts/` 97），Accessibility 100，LCP 0.83–1.11 s，CLS 0 | 同上 |
+| 站内链接 | 0 断链（8 个 HTML，含 `/posts/page/1/` 别名） | 必须保持 0 |
 | 外链 | 3 个，均 200 | 失效数只降不升 |
 | 正文对比度 | 5.7:1 – 12.6:1（深浅两套） | 正文 ≥ 4.5:1 |
 | 站点 `Set-Cookie` | 线上 HEAD 未见 | 必须保持 0 |
