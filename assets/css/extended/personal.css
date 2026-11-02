@@ -199,6 +199,23 @@ button:focus-visible,
   border-color: var(--secondary);
 }
 
+/* 图标表示点击后的目标主题：亮色显示月亮，暗色显示太阳。 */
+.theme-icon {
+  display: none;
+}
+
+.theme-button .theme-icon-moon {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-button .theme-icon-moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-button .theme-icon-sun {
+  display: block;
+}
+
 /* ---------- shared type ---------- */
 
 .hero-eyebrow,
