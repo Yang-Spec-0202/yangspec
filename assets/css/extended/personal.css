@@ -471,6 +471,45 @@ button:focus-visible,
   font-size: 0.88em;
 }
 
+/* 宽表格在容器内横向滚动，提示与区域名称由 render-table.html 输出。 */
+.table-hint {
+  margin: 26px 0 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--secondary);
+}
+
+.prose .table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.prose .table-scroll table {
+  min-width: 480px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.prose .table-scroll th,
+.prose .table-scroll td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose .table-scroll thead th {
+  background: var(--code-bg);
+  font-weight: 600;
+}
+
+.prose .table-scroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 /* ---------- writing ---------- */
 
 .list-page {

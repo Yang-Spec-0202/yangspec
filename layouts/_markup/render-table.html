@@ -1,8 +1,8 @@
 {{- $columns := slice -}}
 {{- range index .THead 0 -}}{{- $columns = $columns | append (.Text | plainify) -}}{{- end -}}
 {{- $hint := printf "table-hint-%d" .Ordinal -}}
-<p class="table-hint" id="{{ $hint }}">Scroll sideways to compare all columns. Keyboard: focus the table and use ← / →.</p>
-<div class="table-scroll" tabindex="0" role="region" aria-label="Comparison: {{ delimit $columns ", " }}" aria-describedby="{{ $hint }}">
+<p class="table-hint" id="{{ $hint }}">表格较宽时可在框内左右滚动查看全部列；键盘聚焦表格后可用 ← / → 滚动。</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="表格：{{ delimit $columns "、" }}" aria-describedby="{{ $hint }}">
   <table{{ range $key, $value := .Attributes }}{{ if $value }} {{ $key }}="{{ $value }}"{{ end }}{{ end }}>
     <thead>{{ range .THead }}<tr>{{ range . }}<th scope="col"{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</th>{{ end }}</tr>{{ end }}</thead>
     <tbody>{{ range .TBody }}<tr>{{ range . }}<td{{ with .Alignment }} style="text-align: {{ . }}"{{ end }}>{{ .Text }}</td>{{ end }}</tr>{{ end }}</tbody>
