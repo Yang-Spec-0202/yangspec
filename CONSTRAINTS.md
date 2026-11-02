@@ -94,7 +94,7 @@
 | 页面数 | 12 个 Hugo 页面，8 个 HTML（7 个可索引路由 + 404），另有 `/posts/page/1/` 跳转别名 | 不得无故减少 |
 | 构建耗时 | 约 30–60 ms | 不得明显变慢 |
 | HTML（gzip） | 首页 2.9 KB / 文章列表 2.4 KB / 文章 3.2 KB / 归档 2.3 KB / 关于 3.1 KB / 联系 2.7 KB / 隐私 3.3 KB | 单页不得增长 > 10% |
-| CSS（gzip） | 7.0 KB | 不得增长 > 10% |
+| CSS（gzip） | 7.2 KB | 不得增长 > 10% |
 | 首方 JS（gzip） | ≈0.2–0.3 KB | 不得增长 |
 | Lighthouse 移动端（localhost） | 七条路由均 100 / 100 / 100 / 100；LCP 0.63–0.78 s；CLS 0；TBT 0 ms | Performance 不得跌破 90 |
 | Lighthouse 移动端（线上） | 2026-11-02：七条路由 Performance 97–100（最低 `/posts/` 97），Accessibility 100，LCP 0.83–1.11 s，CLS 0 | 同上 |
@@ -114,7 +114,6 @@ Lighthouse 数字是单次实验室结果（localhost 与线上各一组），�
 | CSP | 只设 `frame-ancestors`、`base-uri`、`form-action`；PaperMod 有内联主题脚本 | 升级主题时再评估 hash/nonce；不为了 CSP 引入 `unsafe-inline` 脚本白名单 | 主题升级时 |
 | CI | 无 GitHub Actions，检查靠本地脚本 | 合并前手动跑；接入 CI 时把 `scripts/check.sh --full` 放进去 | 2026-12-31 |
 | 外链监控 | 手动，发布前/每月 | 加定时任务或 GitHub Actions schedule | 2027-01-31 |
-| 界面文案一致性 | 主题按钮初始中文、JS 运行时改成英文；表格提示为英文遗留 | 下一次 UI 改动统一为中文 | 2026-12-31 |
 
 ## 7. 例外
 
