@@ -42,3 +42,11 @@
 - 生产：七条路由 Performance 97–100（最低 `/posts/` 97）/ Accessibility 100，LCP 0.83–1.11 s，CLS 0，TBT 0 ms；无 `Set-Cookie`，第三方请求仅 Cloudflare Web Analytics beacon，安全头齐全。
 - 回滚点：`9de7f13`（合并前的 `main`）。
 - 异常：无。上线后 `/archives/`、文章页与 sitemap 均与构建一致；`/posts/page/1/` 是指向 `/posts/` 的别名，不进 sitemap。
+
+### 2026-11-02 · efdcb07 · 页头窄屏布局、主题按钮中文与表格提示
+
+- 改动：PR #18 修 380px 及以下的页头挤压（品牌独占一行、菜单与主题按钮同行，菜单 44px 可点高度；主题按钮运行中名称改中文并按目标主题切换图标）。PR #19 把表格提示与区域名称改为中文，给滚动容器补 `overflow-x` 与键盘焦点框。PR #20 只更新 `CONSTRAINTS.md` 基线，不改变输出。两次改变输出的部署相隔数分钟，合并为一条记录。
+- 检查：`scripts/check-record.sh --full` → 退出码 0；`check.py` 15 项 PASS（含外链 3 个可达）+ `check-docs.py` 5 项 PASS；报告 `reports/check-20261102T211809.txt`（#18 部署前）与 `reports/check-20261102T212518.txt`（#19 部署前）。
+- 生产：`scripts/preview-check.sh https://yangspec.com` → 七路由 Performance 99–100 / Accessibility 100，LCP 0.82–1.16 s，CLS 0，TBT 0 ms；无 `Set-Cookie`，安全头齐全，第三方请求仅 Cloudflare Web Analytics beacon。
+- 回滚点：`8bdbb5f`（PR #18 合并前）。
+- 异常：无。一次生产检查进程因本机负载未在预期时间内结束，重跑后通过，不影响站点。
