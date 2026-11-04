@@ -23,11 +23,20 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 | 文章列表 | `content/posts/_index.md` | `/posts/` |
 | 文章 | `content/posts/<slug>.md` | `/posts/<slug>/` |
 | 归档页 | `content/archives/_index.md` | `/archives/` |
+| 站内文档总览 | `content/docs/_index.md` | `/docs/` |
+| 站内文档正文 | `content/docs/<slug>.md`（按 `weight` 升序） | `/docs/<slug>/` |
 
 - Front matter 必填 `title`、`date`、`description`；`eyebrow` 控制页面眉标，文章不用它（眉标由日期生成）。
 - 文章按日期倒序；`draft: true` 不进生产构建。列表每页篇数由 `hugo.toml` 的 `[pagination] pagerSize` 决定，取值与理由见 [adr/0004](adr/0004-pagination-archive-and-post-navigation.md)。
+- 站内文档按 `weight` 升序，不按日期；`content/docs/_index.md` 设 `outputs: ["html"]`，文档栏目只输出 HTML，没有 `/docs/index.xml`，也不生成 `/docs/page/<n>/`。
 - `taxonomies` 为空：没有标签、分类页，这是有意为之，不是遗漏。
 - 模板不硬编码邮箱、城市；一律取 `hugo.toml` 的 `params`，正文里出现的邮箱也必须与 `params.email` 一致。
+
+## 站内文档与仓库文档
+
+- 站内 `/docs/`：读者可见的文档栏目，源文件在 `content/docs/`，由 `layouts/docs/` 渲染，进入 sitemap 与构建。
+- 仓库 `docs/`：维护者文档（架构、ADR、发布与故障处理），不参与 Hugo 构建，也不出现在 `public/`；`scripts/check-docs.py` 检查它没有整体进入构建。
+- 两者同名不同位置：改给读者看的内容进 `content/docs/`，改维护者流程进根目录 `docs/`，不要互相搬运。
 
 ## 渲染管线
 
@@ -42,14 +51,22 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 | `article.html` | 文章骨架：`article.page` + 页头 + 正文，可选文末 partial |
 | `post-footer.html` | 文章底部的最后更新、上一篇/下一篇与返回链接 |
 | `pagination.html` | 列表分页页码；只有一页时不输出 |
+| `docs-nav.html` | 文档侧栏：桌面 `<nav class="docs-nav">` + 移动端 `<details class="docs-nav-fold">` 折叠，同一份链接 |
+| `docs-nav-links.html` | 文档链接列表（侧栏与折叠复用，高亮当前页） |
+| `docs-toc.html` / `docs-toc-rail.html` / `docs-toc-fold.html` | 页内目录：由 `.Fragments.Headings` 生成两级（h2/h3），桌面右栏、窄屏折叠 |
+| `docs-pager.html` | 文档页的上一节/下一节与回文档总览链接 |
 | `extend_head.html` | 额外 head 内容（当前为空） |
 
-- 页面模板：`layouts/home.html`、`layouts/posts/list.html`、`layouts/posts/single.html`、`layouts/archives/list.html`、`layouts/single.html`、`layouts/404.html`。
+- 页面模板：`layouts/home.html`、`layouts/posts/list.html`、`layouts/posts/single.html`、`layouts/docs/list.html`（文档总览）、`layouts/docs/single.html`（文档正文）、`layouts/archives/list.html`、`layouts/single.html`、`layouts/404.html`。
 - `/posts/` 用 `.Paginate` 分页；Hugo 生成 `/posts/page/<n>/`，其中 `/posts/page/1/` 是指向 `/posts/` 的别名。分页页不进 `sitemap.xml`，也不应被当成可索引页面。
 - 文章页按日期给出上一篇（更早，`.PrevInSection`）与下一篇（更新，`.NextInSection`）；`lastmod` 与 `date` 不同才渲染“最后更新”。
 - 归档页 `/archives/` 用 `GroupByDate "2006"` 按年倒序分组；`content/archives/_index.md` 的 `outputs: ["html"]` 让归档只产出 HTML，没有 `/archives/index.xml`。
+- 文档栏目套 `docs-layout`：≥1024px 三栏（侧栏 / 正文 / 页内目录）；761–1023px 两栏（右栏隐藏，页内目录折叠到正文上方）；≤760px 单栏，桌面侧栏换成 `<details>` 折叠（无 JS，键盘可展开）。每个文档页的侧栏都列出全部文档页与“文档总览”入口，当前页用 `aria-current="page"` 标记。
+- 页内目录取 `.Fragments.Headings`：顶层是 `Level: 0` 的虚拟根，h2 在它的 `.Headings` 下，h3 再嵌一层；不用 `.TableOfContents` 输出两次（会重复 `id="TableOfContents"`）。
+- 文档页之间用“上一节 / 下一节”，首末页不输出多余邻居；文章仍用“上一篇 / 下一篇”。注意 Hugo 在 weight 升序 section 里语义与直觉相反：`.NextInSection` 指向更轻（更靠前）的一页、`.PrevInSection` 指向更重（更靠后）的一页，所以模板里“上一节”用 `.NextInSection`、“下一节”用 `.PrevInSection`，不要按字面交换。文档总览由 `layouts/docs/list.html` 列出全部文档卡片，不含页内目录。
+- 文档总览与正文沿用文章组件（`article.html` + `page-header.html`），不另起页面骨架；颜色、间距与排版共用现有样式变量。
 - 表格由 `layouts/_markup/render-table.html` 包裹横向滚动容器；提示与区域名称为中文，窄屏可在框内左右滚动（`tabindex="0"` + `role="region"` 让其可聚焦、可键盘滚动）。
-- RSS 由 Hugo 自动生成（首页与文章栏目），页面没有可见入口；需要时手动用 `/posts/index.xml`。归档页只输出 HTML，没有 RSS。
+- RSS 由 Hugo 自动生成（首页与文章栏目），页面没有可见入口；需要时手动用 `/posts/index.xml`。归档页与文档栏目只输出 HTML，没有 RSS。
 
 ## 样式与脚本
 
@@ -63,12 +80,12 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 | 脚本 | 作用 |
 | --- | --- |
-| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算、分页结构、归档覆盖、上一篇/下一篇、最后更新）；`--full` 增加外链 |
+| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥、维护者 `docs/` 未进入构建）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算、分页结构、归档覆盖、上一篇/下一篇、最后更新、文档栏目）；`--full` 增加外链 |
 | `scripts/check-record.sh [--full]` | 运行 `check.sh`，把完整输出、commit 与退出码存到 gitignored 的 `reports/`，供发布记录引用 |
-| `scripts/preview-check.sh <url>` | Lighthouse 七条路由、安全头、`Set-Cookie`、第三方请求；localhost 自动跳过安全头 |
+| `scripts/preview-check.sh <url>` | Lighthouse 九条路由（含 `/docs/` 与 `/docs/exam-grading/`）、安全头、`Set-Cookie`、第三方请求；localhost 自动跳过安全头 |
 | `scripts/make-icons.py` | 从头像生成站点图标 |
 
-发布记录的格式与追加规则见 [ops/releases.md](ops/releases.md)；没有 CI（`CONSTRAINTS.md` 第 6 节登记 2026-12-31 前接入），所有检查靠合并前手动执行。
+发布记录的格式与追加规则见 [ops/releases.md](ops/releases.md)；没有 CI（`CONSTRAINTS.md` 第 6 节登记 2026-12-31 前接入），所有检查靠合并前手动执行。`check.py` 的文档栏目检查在生产构建只有 3 篇正文时也通过：校验总览页、正文页数、无分页页、sitemap 覆盖、侧栏链接与“上一节/下一节”顺序；页内目录锚点由站内链接检查统一覆盖。
 
 ## 输出与部署
 
