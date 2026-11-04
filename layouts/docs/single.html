@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="wrap">
+  <div class="docs-layout">
+    {{ partial "docs-nav.html" . }}
+    <div class="docs-main">
+      {{ partial "docs-toc-fold.html" . }}
+      <article class="page docs-article">
+        {{ partial "page-header.html" (dict "eyebrow" "DOCS · 文档" "title" .Title "lede" .Description) }}
+        <div class="prose">
+          {{ .Content }}
+        </div>
+        {{ partial "docs-pager.html" . }}
+      </article>
+    </div>
+    {{ partial "docs-toc-rail.html" . }}
+  </div>
+</div>
+{{ end }}

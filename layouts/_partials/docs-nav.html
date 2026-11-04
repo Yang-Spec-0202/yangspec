@@ -1,0 +1,14 @@
+{{- /*
+  Docs sidebar: a sticky desktop nav plus the same links folded on mobile.
+  Context: the current page.
+*/ -}}
+<div class="docs-sidebar">
+  <nav class="docs-nav" aria-label="文档导航">
+    <p class="docs-nav-title">文档</p>
+    {{ partial "docs-nav-links.html" . }}
+  </nav>
+  <details class="docs-nav-fold">
+    <summary>文档目录</summary>
+    {{ partial "docs-nav-links.html" . }}
+  </details>
+</div>

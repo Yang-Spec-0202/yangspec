@@ -15,7 +15,7 @@ mkdir -p "$npm_config_cache"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-routes=(home:/ posts:/posts/ post:/posts/hello/ archives:/archives/ about:/about/ contact:/contact/ privacy:/privacy/)
+routes=(home:/ posts:/posts/ post:/posts/hello/ archives:/archives/ about:/about/ contact:/contact/ privacy:/privacy/ docs:/docs/ docs-exam:/docs/exam-grading/)
 for item in "${routes[@]}"; do
   name="${item%%:*}"
   path="${item#*:}"
@@ -36,7 +36,7 @@ tmp, base = sys.argv[1], sys.argv[2]
 fails = []
 passes = []
 
-for name in ("home", "posts", "post", "archives", "about", "contact", "privacy"):
+for name in ("home", "posts", "post", "archives", "about", "contact", "privacy", "docs", "docs-exam"):
     with open(f"{tmp}/{name}.json", encoding="utf-8") as handle:
         data = json.load(handle)
     audits = data["audits"]
@@ -45,7 +45,7 @@ for name in ("home", "posts", "post", "archives", "about", "contact", "privacy")
     cls = audits.get("cumulative-layout-shift", {}).get("numericValue")
     tbt = audits.get("total-blocking-time", {}).get("numericValue")
     print(
-        f"{name:8} perf={scores.get('performance')} a11y={scores.get('accessibility')} "
+        f"{name:10} perf={scores.get('performance')} a11y={scores.get('accessibility')} "
         f"LCP={lcp:.0f}ms CLS={cls:.3f} TBT={tbt:.0f}ms"
     )
     if scores.get("performance", 0) < 90:
@@ -60,7 +60,7 @@ for name in ("home", "posts", "post", "archives", "about", "contact", "privacy")
         fails.append(f"{name}: TBT {tbt:.0f}ms > 200ms")
 
 if not fails:
-    passes.append("Lighthouse 七页达标")
+    passes.append("Lighthouse 九页达标")
 
 host = urlsplit(base).hostname or ""
 local = host in {"127.0.0.1", "localhost", "::1"}

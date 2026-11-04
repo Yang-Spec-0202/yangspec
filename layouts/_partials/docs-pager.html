@@ -1,0 +1,26 @@
+{{- /*
+  Previous/next section links inside the docs section, in weight ascending order.
+  Hugo's navigation in a weight-sorted section runs opposite to the obvious
+  reading: .NextInSection points at the lighter (earlier) document and
+  .PrevInSection at the heavier (later) one, so the labels are crossed here on
+  purpose. Each link is only rendered when the neighbour exists, which keeps the
+  first page without "上一节" and the last page without "下一节".
+  Context: the current page.
+*/ -}}
+{{- if or .PrevInSection .NextInSection }}
+<nav class="docs-pager" aria-label="文档翻页">
+  {{- with .NextInSection }}
+  <a class="docs-pager-link docs-pager-prev" href="{{ .RelPermalink }}" rel="prev">
+    <span class="docs-pager-label">上一节</span>
+    <span class="docs-pager-title">{{ .Title }}</span>
+  </a>
+  {{- end }}
+  {{- with .PrevInSection }}
+  <a class="docs-pager-link docs-pager-next" href="{{ .RelPermalink }}" rel="next">
+    <span class="docs-pager-label">下一节</span>
+    <span class="docs-pager-title">{{ .Title }}</span>
+  </a>
+  {{- end }}
+</nav>
+{{- end }}
+<p class="docs-back"><a class="text-link" href="{{ "/docs/" | relURL }}"><span aria-hidden="true">←</span>回文档总览</a></p>

@@ -17,7 +17,8 @@
   10. 归档覆盖（按年分组、不重不漏、只输出 HTML）
   11. 上一篇/下一篇链
   12. 文章最后更新渲染
-  13. 外链状态（--external）
+  13. 文档栏目（总览、正文页数、不分页、sitemap、侧栏覆盖、上一节/下一节）
+  14. 外链状态（--external）
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ import argparse
 import gzip
 import re
 import sys
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -42,6 +44,7 @@ REQUIRED_PAGES = [
     "privacy/index.html",
     "posts/index.html",
     "archives/index.html",
+    "docs/index.html",
     "404.html",
 ]
 SKIP_DIRS = {"archive", "themes", ".git", "public", "resources", "node_modules"}
@@ -62,6 +65,18 @@ ANCHOR_RE = re.compile(r"<a\b[^>]*\bhref=\"([^\"]+)\"[^>]*>", re.I)
 POST_NAV_RE = re.compile(r"<nav[^>]*class=\"post-nav\"[^>]*>(.*?)</nav>", re.S)
 POST_UPDATED_RE = re.compile(r"<p[^>]*class=\"post-updated\"[^>]*>(.*?)</p>", re.S)
 TIME_DATE_RE = re.compile(r"<time[^>]*datetime=\"(\d{4}-\d{2}-\d{2})\"")
+
+# 站内文档：content/docs/ 生成 /docs/；仓库 docs/ 是维护者文档，不参与构建。
+DOCS_SOURCE_DIR = ROOT / "content" / "docs"
+DOCS_NAV_DESKTOP_RE = re.compile(
+    r"<nav\b[^>]*\bclass=\"[^\"]*\bdocs-nav\b[^\"]*\"[^>]*>(.*?)</nav>", re.S
+)
+DOCS_NAV_FOLD_RE = re.compile(
+    r"<details\b[^>]*\bclass=\"[^\"]*\bdocs-nav-fold\b[^\"]*\"[^>]*>(.*?)</details>", re.S
+)
+ANCHOR_TAG_RE = re.compile(r"<a\b[^>]*>", re.I)
+HREF_ATTR_RE = re.compile(r'href="([^"]*)"')
+REL_ATTR_RE = re.compile(r'rel="([^"]*)"')
 
 FAILS: list[str] = []
 WARNS: list[str] = []
@@ -252,7 +267,7 @@ def check_pages(site: Path) -> dict[Path, PageParser]:
     sitemap = site / "sitemap.xml"
     if sitemap.is_file():
         locations = re.findall(r"<loc>(.*?)</loc>", read_text(sitemap))
-        required = {"/", "/about/", "/contact/", "/privacy/", "/posts/", "/archives/"}
+        required = {"/", "/about/", "/contact/", "/privacy/", "/posts/", "/archives/", "/docs/"}
         found = {urlsplit(url).path or "/" for url in locations}
         # 构建产物里的每个 index.html 都应有条目，sitemap 也不应指向不存在的页面。
         # 分页页（/posts/page/<n>/）与 page/1 别名不进 sitemap，必须排除。
@@ -304,7 +319,8 @@ def check_links(site: Path, pages: dict[Path, PageParser]) -> set[str]:
                 broken += 1
                 continue
             if value.startswith("#"):
-                if value[1:] not in parser.ids:
+                # 页内锚点可能是百分号编码的中文 id（如文档页内目录）。
+                if unquote(value[1:]) not in parser.ids:
                     fail(f"{relative}: 锚点不存在 {value}")
                     broken += 1
                 continue
@@ -859,6 +875,197 @@ def check_post_updated(
         ok(f"最后更新渲染与 Front matter 一致（{checked} 篇文章）")
 
 
+def load_docs_order() -> list[dict[str, object]]:
+    """content/docs/*.md 按 weight 升序；总览 _index.md 不参与排序。"""
+    items: list[dict[str, object]] = []
+    if not DOCS_SOURCE_DIR.is_dir():
+        return items
+    for path in sorted(DOCS_SOURCE_DIR.glob("*.md")):
+        if path.name == "_index.md":
+            continue
+        fields = front_matter(path)
+        try:
+            weight = int(fields.get("weight") or 0)
+        except ValueError:
+            fail(f"{path.relative_to(ROOT)}: weight 不是整数")
+            weight = 0
+        slug = fields.get("slug") or path.stem
+        items.append(
+            {
+                "url": f"/docs/{slug}/",
+                "weight": weight,
+                "file": path.relative_to(ROOT).as_posix(),
+            }
+        )
+    items.sort(key=lambda item: (int(item["weight"]), str(item["url"])))
+    return items
+
+
+def built_docs(site: Path) -> dict[str, Path]:
+    """构建产物里的文档正文页：/docs/<slug>/ → 相对路径。"""
+    docs: dict[str, Path] = {}
+    for path in sorted(site.glob("docs/*/index.html")):
+        relative = path.relative_to(site)
+        parts = relative.parts
+        if len(parts) == 3 and parts[1] != "page":
+            docs[f"/docs/{parts[1]}/"] = relative
+    return docs
+
+
+def normalize_docs_url(value: str) -> str:
+    path = urlsplit(value).path
+    if not path.startswith("/"):
+        path = "/" + path
+    if not path.endswith("/"):
+        path += "/"
+    return path
+
+
+def docs_nav_links(html: str, pattern: re.Pattern[str]) -> list[str]:
+    """从桌面侧栏或移动折叠块里取出文档链接（归一成 /docs/… 形式）。"""
+    block = pattern.search(html)
+    if block is None:
+        return []
+    links: list[str] = []
+    for href in HREF_ATTR_RE.findall(block.group(1)):
+        parts = urlsplit(href)
+        if parts.scheme or not parts.path:
+            continue
+        path = normalize_docs_url(href)
+        if path == "/docs/" or path.startswith("/docs/"):
+            links.append(path)
+    return links
+
+
+def docs_pager_links(html: str) -> tuple[str | None, str | None, list[str]]:
+    """解析文档页的上一节/下一节；返回 (prev, next, 结构问题)。"""
+    prev_href: str | None = None
+    next_href: str | None = None
+    problems: list[str] = []
+    for match in ANCHOR_TAG_RE.finditer(html):
+        tag = match.group(0)
+        rel_match = REL_ATTR_RE.search(tag)
+        if rel_match is None:
+            continue
+        rels = set(rel_match.group(1).split())
+        if not rels & {"prev", "next"}:
+            continue
+        href_match = HREF_ATTR_RE.search(tag)
+        if href_match is None:
+            problems.append("翻页链接缺少 href")
+            continue
+        if "prev" in rels:
+            if prev_href is not None:
+                problems.append("出现多个 rel=prev")
+            prev_href = href_match.group(1)
+        if "next" in rels:
+            if next_href is not None:
+                problems.append("出现多个 rel=next")
+            next_href = href_match.group(1)
+    return (
+        normalize_docs_url(prev_href) if prev_href else None,
+        normalize_docs_url(next_href) if next_href else None,
+        problems,
+    )
+
+
+def check_docs_sidebar(html: str, label: str, targets: set[str]) -> list[str]:
+    """桌面侧栏与移动折叠都要覆盖全部文档页 + 总览入口，各自不重不漏。"""
+    problems: list[str] = []
+    for name, pattern in (
+        ("桌面侧栏", DOCS_NAV_DESKTOP_RE),
+        ("移动端折叠目录", DOCS_NAV_FOLD_RE),
+    ):
+        links = docs_nav_links(html, pattern)
+        if not links:
+            problems.append(f"{label}: 缺少{name}")
+            continue
+        counts = Counter(links)
+        for target in sorted(targets - set(counts)):
+            problems.append(f"{label}: {name}缺少 {target}")
+        for target in sorted(counts):
+            if target in targets and counts[target] != 1:
+                problems.append(f"{label}: {name}重复 {target}（{counts[target]} 次）")
+    return problems
+
+
+def check_docs_section(site: Path) -> None:
+    """文档栏目：总览、正文页数、不分页、sitemap、侧栏覆盖、上一节/下一节。"""
+    order = load_docs_order()
+    if not order:
+        fail("content/docs 没有文档正文，站点 /docs/ 栏目为空")
+        return
+
+    problems: list[str] = []
+    built = built_docs(site)
+    expected = {str(item["url"]) for item in order}
+
+    if not (site / "docs" / "index.html").is_file():
+        problems.append("缺少 /docs/ 总览页（docs/index.html）")
+    if len(built) < 3:
+        problems.append(f"文档正文页只有 {len(built)} 个，至少需要 3 个")
+    if (site / "docs" / "page").exists():
+        problems.append("文档栏目不应分页，但生成了 /docs/page/")
+    if (site / "docs" / "index.xml").is_file():
+        problems.append("文档栏目关闭 RSS，不应生成 /docs/index.xml")
+
+    missing_built = expected - set(built)
+    if missing_built:
+        problems.append("content/docs 有源文件但未构建：" + ", ".join(sorted(missing_built)))
+    extra_built = set(built) - expected
+    if extra_built:
+        problems.append("构建产物有 content/docs 找不到的文档页：" + ", ".join(sorted(extra_built)))
+
+    sitemap = site / "sitemap.xml"
+    if sitemap.is_file():
+        found = {
+            urlsplit(url).path or "/"
+            for url in re.findall(r"<loc>(.*?)</loc>", read_text(sitemap))
+        }
+        for target in sorted((set(built) | {"/docs/"}) - found):
+            problems.append(f"sitemap 缺少文档页 {target}")
+
+    targets = set(built) | {"/docs/"}
+    index_page = site / "docs" / "index.html"
+    if index_page.is_file():
+        problems.extend(check_docs_sidebar(read_text(index_page), "/docs/", targets))
+    for index, item in enumerate(order):
+        url = str(item["url"])
+        relative = built.get(url)
+        if relative is None:
+            continue
+        html = read_text(site / relative)
+
+        # 侧栏：桌面与移动折叠两份都要覆盖全部文档页 + 总览入口，各自不重不漏。
+        problems.extend(check_docs_sidebar(html, url, targets))
+
+        # 上一节/下一节：按 content/docs 的 weight 升序，首末页没有多余邻居。
+        prev_expected = str(order[index - 1]["url"]) if index > 0 else None
+        next_expected = str(order[index + 1]["url"]) if index + 1 < len(order) else None
+        prev_actual, next_actual, structure = docs_pager_links(html)
+        for message in structure:
+            problems.append(f"{url}: {message}")
+        if prev_actual != prev_expected:
+            problems.append(
+                f"{url}: 上一节应为 {prev_expected or '无'}，实际为 {prev_actual or '无'}"
+            )
+        if next_actual != next_expected:
+            problems.append(
+                f"{url}: 下一节应为 {next_expected or '无'}，实际为 {next_actual or '无'}"
+            )
+        for label, actual in (("上一节", prev_actual), ("下一节", next_actual)):
+            if actual is not None and actual not in built:
+                problems.append(f"{url}: {label}指向不存在的文档页 {actual}")
+
+    for problem in problems:
+        fail("文档栏目：" + problem)
+    if not problems:
+        ok(
+            f"文档栏目结构正确（总览 + {len(built)} 篇正文，"
+            "侧栏覆盖完整，上一节/下一节与 weight 顺序一致）"
+        )
+
+
 def check_weight(site: Path, pages: dict[Path, PageParser]) -> None:
     heaviest = (0, "")
     js_total: dict[Path, int] = {}
@@ -955,6 +1162,7 @@ def main() -> int:
     check_archives(site, pages, built, posts, resolved)
     check_post_navigation(site, built, resolved)
     check_post_updated(site, built, resolved)
+    check_docs_section(site)
     check_weight(site, pages)
     if args.external:
         check_external(external)
