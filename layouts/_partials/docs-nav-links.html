@@ -1,0 +1,17 @@
+{{- /*
+  Docs navigation links, shared by the desktop sidebar and the mobile fold so the
+  order and the current-page marker are defined in one place.
+  Context: the current page.
+*/ -}}
+{{- $current := . -}}
+{{- $docs := (where site.RegularPages "Section" "docs").ByWeight -}}
+<ul class="docs-nav-list">
+  <li class="docs-nav-section">
+    <a class="docs-nav-link" href="{{ "/docs/" | relURL }}"{{ if eq $current.Kind "section" }} aria-current="page"{{ end }}>文档总览</a>
+  </li>
+  {{- range $docs }}
+  <li>
+    <a class="docs-nav-link" href="{{ .RelPermalink }}"{{ if eq .RelPermalink $current.RelPermalink }} aria-current="page"{{ end }}>{{ .Title }}</a>
+  </li>
+  {{- end }}
+</ul>

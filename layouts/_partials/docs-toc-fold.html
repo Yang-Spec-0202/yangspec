@@ -1,0 +1,12 @@
+{{- /*
+  Mobile/tablet in-page contents, folded above the article. Renders nothing when
+  the page has no h2/h3 headings.
+  Context: the current page.
+*/ -}}
+{{- $toc := partial "docs-toc.html" . -}}
+{{- if $toc }}
+<details class="docs-toc-fold">
+  <summary>本页目录</summary>
+  {{ $toc }}
+</details>
+{{- end }}
