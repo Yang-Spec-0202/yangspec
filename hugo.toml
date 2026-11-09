@@ -56,8 +56,17 @@ summaryLength = 30
     url = "/contact/"
     weight = 4
 
+# 机器可读入口：/llms.txt 由首页的 LLMS 输出格式从 layouts/index.llms.txt 生成，
+# 内容随页面变化自动更新；不要手工维护 public/llms.txt。
+# 约定与检查见 CONSTRAINTS.md 第 1、3 节与 scripts/check.py。
+[outputFormats.LLMS]
+  mediaType = "text/plain"
+  baseName = "llms"
+  isPlainText = true
+  rel = "alternate"
+
 [outputs]
-  home = ["HTML", "RSS"]
+  home = ["HTML", "RSS", "LLMS"]
 
 # 列表每页篇数：文章多了也不至于一页拉到底。
 # 改动这里会改变 /posts/ 的分页页数与 /posts/page/N/ 路径。

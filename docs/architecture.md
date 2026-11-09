@@ -80,7 +80,7 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 
 | 脚本 | 作用 |
 | --- | --- |
-| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥、维护者 `docs/` 未进入构建）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算、分页结构、归档覆盖、上一篇/下一篇、最后更新、文档栏目）；`--full` 增加外链 |
+| `scripts/check.sh` | 生产构建 + `check-docs.py`（文档链接、ADR、复核日期、阈值单一来源、密钥、维护者 `docs/` 未进入构建）+ `check.py`（必需页面、sitemap、站内链接、Front matter、身份字段、隐私扫描、占位、体积预算、分页结构、归档覆盖、上一篇/下一篇、最后更新、文档栏目、llms.txt）；`--full` 增加外链 |
 | `scripts/check-record.sh [--full]` | 运行 `check.sh`，把完整输出、commit 与退出码存到 gitignored 的 `reports/`，供发布记录引用 |
 | `scripts/preview-check.sh <url>` | Lighthouse 九条路由（含 `/docs/` 与 `/docs/exam-grading/`）、安全头、`Set-Cookie`、第三方请求；localhost 自动跳过安全头 |
 | `scripts/make-icons.py` | 从头像生成站点图标 |
@@ -90,6 +90,7 @@ HUGO_BIN=/path/to/hugo scripts/check.sh
 ## 输出与部署
 
 - 构建产物在 `public/`（gitignored）；`static/` 里的文件原样发布，包括 `static/_headers` 的安全头配置。
+- 首页额外输出 `/llms.txt`（`hugo.toml` 的 `[outputFormats.LLMS]`，模板 `layouts/index.llms.txt`）：H1 + 摘要 + 文档 / 文章 / 站点链接，按内容在每次构建时生成；不进 sitemap，首页 `<head>` 里有 `rel="alternate"` 指向它。检查见 `CONSTRAINTS.md` 第 1 节第 12 条与 `scripts/check.py`。
 - Cloudflare Pages：生产分支 `main`；PR 分支生成预览。
 - 分支预览别名是 `<branch>.yangspec.pages.dev`；较长的分支名可能没有别名（返回 404），此时用部署哈希地址 `<hash>.yangspec.pages.dev`，链接在 PR 的 Cloudflare 检查里。
 - 回滚用 Cloudflare 的部署回滚，不用 revert 抢时间；步骤见 `ops/runbook.md`。
