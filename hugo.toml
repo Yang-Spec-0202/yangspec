@@ -19,6 +19,22 @@ summaryLength = 30
   DateFormat = "2006 年 1 月 2 日"
   mainSections = ["posts"]
 
+# 联盟 / 推荐链接：当前指向官网，站长加入计划后换成带推荐码的 URL。
+# 占位名：AFFILIATE_VULTR / AFFILIATE_BANDWAGON / AFFILIATE_RACKNERD /
+#         AFFILIATE_666CLOUDS / AFFILIATE_NAMECHEAP
+[params.affiliates]
+  vultr = "https://www.vultr.com/"
+  bandwagon = "https://bandwagonhost.com/"
+  racknerd = "https://www.racknerd.com/"
+  liuliuyun = "https://www.666clouds.com/"
+  namecheap = "https://www.namecheap.com/"
+
+# 打赏平台主页：留空则支持页只显示文字提示，不生成假链接。
+# 占位名：SUPPORT_AFDIAN / SUPPORT_BUYMEACOFFEE
+[params.support]
+  afdian = ""
+  buymeacoffee = ""
+
 [params.assets]
   # ?v= 用来打破浏览器与 CDN 的图标缓存：换图标后把这个数字加一。
   favicon = "favicon.ico?v=2"
@@ -48,9 +64,17 @@ summaryLength = 30
     url = "/about/"
     weight = 2
   [[menu.main]]
+    name = "服务"
+    url = "/services/"
+    weight = 3
+  [[menu.main]]
+    name = "支持"
+    url = "/support/"
+    weight = 4
+  [[menu.main]]
     name = "联系"
     url = "/contact/"
-    weight = 3
+    weight = 5
 
 [outputs]
   home = ["HTML", "RSS"]

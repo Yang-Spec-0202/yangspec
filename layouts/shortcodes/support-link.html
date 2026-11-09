@@ -1,0 +1,15 @@
+{{- /*
+  打赏平台链接。用法：{{< support-link afdian "爱发电" >}}
+  URL 来自 hugo.toml 的 [params.support]。未填时只输出平台名，不生成假链接。
+*/ -}}
+{{- $key := .Get 0 -}}
+{{- $label := .Get 1 -}}
+{{- if or (not $key) (not $label) -}}
+  {{- errorf "support-link shortcode 需要两个参数：键名与显示文字" -}}
+{{- end -}}
+{{- $url := index site.Params.support $key | default "" -}}
+{{- if $url -}}
+<a href="{{ $url }}" rel="noopener noreferrer">{{ $label }}</a>
+{{- else -}}
+<span>{{ $label }}（主页链接待站长填入 <code>params.support.{{ $key }}</code>）</span>
+{{- end -}}

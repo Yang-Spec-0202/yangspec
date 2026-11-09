@@ -1,0 +1,15 @@
+{{- /*
+  联盟/推荐链接短代码。用法：{{< aff vultr "Vultr" >}}
+  URL 来自 hugo.toml 的 [params.affiliates]，站长加入联盟后替换为带推荐码的地址。
+  禁止留空：空值会让构建失败，避免生成假链接。
+*/ -}}
+{{- $key := .Get 0 -}}
+{{- $label := .Get 1 -}}
+{{- if or (not $key) (not $label) -}}
+  {{- errorf "aff shortcode 需要两个参数：键名与显示文字" -}}
+{{- end -}}
+{{- $url := index site.Params.affiliates $key -}}
+{{- if not $url -}}
+  {{- errorf "aff shortcode: hugo.toml 缺少 params.affiliates.%s" $key -}}
+{{- end -}}
+<a href="{{ $url }}" rel="noopener noreferrer">{{ $label }}</a>
