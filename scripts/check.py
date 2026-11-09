@@ -28,6 +28,7 @@ import argparse
 import gzip
 import re
 import sys
+import xml.etree.ElementTree as ET
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
@@ -68,6 +69,7 @@ POST_UPDATED_RE = re.compile(r"<p[^>]*class=\"post-updated\"[^>]*>(.*?)</p>", re
 TIME_DATE_RE = re.compile(r"<time[^>]*datetime=\"(\d{4}-\d{2}-\d{2})\"")
 # /llms.txt 里的 Markdown 链接；只取目标，不看链接文字。
 LLMS_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+LLMS_BULLET_RE = re.compile(r"^- \[[^\]]*\]\([^)\s]+\)")
 LLMS_MAX_BYTES = 250_000
 
 # 站内文档：content/docs/ 生成 /docs/；仓库 docs/ 是维护者文档，不参与构建。
@@ -1076,6 +1078,33 @@ def load_site_title() -> str:
     return match.group(1) if match else ""
 
 
+def check_llms_layout(text: str) -> list[str]:
+    """H2 之后只允许 H2 标题与 markdown 链接列表项（llmstxt.org 的 file list）。"""
+    problems: list[str] = []
+    lines = text.splitlines()
+    start = next((index for index, line in enumerate(lines) if line.startswith("## ")), None)
+    if start is None:
+        problems.append("缺少 H2 分区（llmstxt.org 的 file list）")
+        return problems
+    for number, line in enumerate(lines[start:], start=start + 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("## "):
+            continue
+        if not stripped.startswith("- ["):
+            problems.append(f"第 {number} 行应为 markdown 链接列表项（`- [标题](URL)：说明`）：{stripped[:40]}")
+        elif not LLMS_BULLET_RE.match(stripped):
+            problems.append(f"第 {number} 行不是 `[标题](URL)` 链接：{stripped[:40]}")
+    return problems
+
+
+def page_has_link_rel(html: str, rel: str, needle: str) -> bool:
+    """页面 <head> 里是否有指定 link relation 指向 needle。"""
+    for tag in re.findall(r"<link\b[^>]*>", html, re.I):
+        if f'rel="{rel}"' in tag and needle in tag:
+            return True
+    return False
+
+
 def check_llms(site: Path) -> None:
     """llms.txt：构建期生成、覆盖 sitemap 全部页面、无草稿与死链。"""
     title = load_site_title()
@@ -1103,6 +1132,7 @@ def check_llms(site: Path) -> None:
         problems.append(f"H1 应为 `# {title}`，实际是 `{non_empty[0]}`")
     if len(non_empty) < 2 or not non_empty[1].startswith("> "):
         problems.append("第二段应为 `> 摘要`（llms.txt 的 blockquote 约定）")
+    problems.extend(check_llms_layout(text))
 
     internal: set[str] = set()
     dead: list[str] = []
@@ -1120,8 +1150,14 @@ def check_llms(site: Path) -> None:
             target = parts.path or "/"
         internal.add(target)
         if target.endswith(".xml"):
-            if not (site / target.lstrip("/")).is_file():
+            xml_path = site / target.lstrip("/")
+            if not xml_path.is_file():
                 dead.append(raw_url)
+            else:
+                try:
+                    ET.fromstring(xml_path.read_bytes())
+                except ET.ParseError as error:
+                    problems.append(f"{target} 不是合法 XML：{error}")
         elif internal_target(site, target) is None:
             dead.append(raw_url)
     if dead:
@@ -1155,12 +1191,27 @@ def check_llms(site: Path) -> None:
     if missing_docs:
         problems.append("漏掉文档入口：" + ", ".join(sorted(missing_docs)))
 
+    # 发现入口：每个可索引页面用 rel="describedby" 指向 llms.txt；首页另有 alternate。
+    missing_rel: list[str] = []
+    for page_path in sorted(sitemap_paths):
+        page = internal_target(site, page_path)
+        if page is None or page.suffix != ".html":
+            continue
+        if not page_has_link_rel(read_text(page), "describedby", "llms.txt"):
+            missing_rel.append(page_path)
+    if missing_rel:
+        problems.append("这些页面缺少 rel=\"describedby\" 指向 llms.txt：" + ", ".join(missing_rel))
+    home = site / "index.html"
+    if home.is_file() and not page_has_link_rel(read_text(home), "alternate", "llms.txt"):
+        problems.append("首页缺少 rel=\"alternate\" 指向 llms.txt")
+
     for problem in problems:
         fail("llms.txt：" + problem)
     if not problems:
         ok(
             f"llms.txt 覆盖全部 {len(sitemap_paths)} 个可索引页面"
-            f"（文章 {len(built)} 篇、文档 {len(docs)} 篇），无死链、不进 sitemap"
+            f"（文章 {len(built)} 篇、文档 {len(docs)} 篇），H2 为链接列表、"
+            "页面有 describedby、无死链、不进 sitemap"
         )
 
 
