@@ -1,0 +1,30 @@
+{{ define "main" }}
+{{- $docs := (where site.RegularPages "Section" "docs").ByWeight -}}
+<div class="wrap">
+  <div class="docs-layout docs-layout-list">
+    {{ partial "docs-nav.html" . }}
+    <div class="docs-main">
+      <section class="page docs-list-page" aria-labelledby="docs-title">
+        {{ partial "page-header.html" (dict "eyebrow" "DOCS · 文档" "title" .Title "id" "docs-title" "lede" .Description) }}
+        <div class="prose docs-intro">
+          {{ .Content }}
+        </div>
+        {{ if $docs }}
+        <ol class="docs-list">
+          {{- range $docs }}
+          <li class="docs-card">
+            <a class="docs-card-link" href="{{ .RelPermalink }}">
+              <span class="docs-card-title">{{ .Title }}</span>
+              {{ with .Description }}<span class="docs-card-desc">{{ . }}</span>{{ end }}
+            </a>
+          </li>
+          {{- end }}
+        </ol>
+        {{ else }}
+        <p class="post-empty">还没有文档。</p>
+        {{ end }}
+      </section>
+    </div>
+  </div>
+</div>
+{{ end }}

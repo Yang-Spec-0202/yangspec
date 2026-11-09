@@ -156,9 +156,33 @@ def check_secrets(files: list[Path]) -> None:
         ok("文档未发现密钥模式")
 
 
+def check_public_docs() -> None:
+    """public/docs 由 content/docs 合法生成；维护者 docs/ 的结构不得进入构建。"""
+    public_docs = ROOT / "public" / "docs"
+    if not public_docs.exists():
+        ok("构建产物无 public/docs（站内未启用文档栏目）")
+        return
+    leaked: list[str] = []
+    for path in sorted(public_docs.rglob("*")):
+        relative = path.relative_to(public_docs)
+        if path.is_dir() and path.name in {"adr", "ops"}:
+            leaked.append(f"public/docs/{relative.as_posix()}/（维护者文档目录）")
+            continue
+        if not path.is_file():
+            continue
+        if path.suffix.lower() == ".md":
+            leaked.append(f"public/docs/{relative.as_posix()}（Markdown 不应发布）")
+        elif path.name.lower() in {"architecture.html", "readme.html", "template.html"}:
+            leaked.append(f"public/docs/{relative.as_posix()}（维护者文档被渲染进站点）")
+    if leaked:
+        for item in leaked:
+            fail("维护者 docs/ 进入了构建：" + item)
+    else:
+        ok("public/docs 只含站内文档，维护者 docs/ 未进入构建")
+
+
 def main() -> int:
-    if (ROOT / "public" / "docs").exists():
-        fail("public/docs 存在：docs/ 不应进入 Hugo 构建")
+    check_public_docs()
     has_docs = DOCS.is_dir() and any(DOCS.rglob("*.md"))
     if not has_docs:
         ok("docs/ 尚未建立，跳过文档检查")

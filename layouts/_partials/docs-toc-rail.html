@@ -1,0 +1,12 @@
+{{- /*
+  Desktop right-hand column with the in-page contents. Renders nothing when the
+  page has no h2/h3 headings (avoids an empty rail).
+  Context: the current page.
+*/ -}}
+{{- $toc := partial "docs-toc.html" . -}}
+{{- if $toc }}
+<aside class="docs-toc-rail" aria-label="本页目录">
+  <p class="docs-toc-title">本页目录</p>
+  {{ $toc }}
+</aside>
+{{- end }}
