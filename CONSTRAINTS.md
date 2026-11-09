@@ -33,6 +33,7 @@
 | 9 | 性能 | 移动端 Lighthouse Performance ≥ 90；LCP ≤ 2.5 s；CLS ≤ 0.1；TBT ≤ 200 ms | 前三项是 Core Web Vitals 的 “good” 阈值；实验室拿不到稳定 INP，用 TBT 代理，字段数据出现后再以 INP ≤ 200 ms 为准 | 同上 | 分支预览 |
 | 10 | 安全头 | 预览响应含 `nosniff`、`Referrer-Policy`、`Permissions-Policy`、`X-Frame-Options: DENY`/`frame-ancestors 'none'`，且站点自身不写 `Set-Cookie` | 静态站的低成本纵深防御；把“控制台里点过”变成仓库里可复现的配置 | 同上（localhost 自动跳过） | 分支预览 |
 | 11 | 外链 | 发布前 4xx/5xx 为 0；403/429/超时重试后仍失败记警告，不阻断合并 | 外站会抖动、会防盗链，不能让别人的 503 卡住本站发布 | `scripts/check.sh --full` | 发布前 / 每月 |
+| 12 | 机器可读入口 | `/llms.txt` 由构建生成：H1 + 摘要（blockquote），链接覆盖 `sitemap.xml` 全部可索引页面，文章 / 文档 / 站点分区完整；无草稿、无死链，不进 sitemap | 模型与爬虫需要一份稳定入口；手工维护会随内容和路由变化而过期，所以从内容生成并在每次构建校验 | 同上 | 每次改动 |
 
 运行时检查（8–10）依赖一个可访问的预览 URL；没有 URL 时标 `SKIP`，不得标 `PASS`。`scripts/preview-check.sh` 对 localhost 跳过安全头检查。
 
@@ -56,6 +57,7 @@
 - 新增 `!important` 必须注释原因。现有 `prefers-reduced-motion` 兜底与 `.block-more` 两处保留；改动对应区块时顺手清理。
 - 首方 JS 只用于主题切换等必要交互，≤ 10 KB gzip，不引框架、不引 CDN。无 JS 时正文、导航、目录仍可用。
 - 静态资源文件名用小写 kebab-case；图片给出宽高，避免 CLS；指纹化资源可长缓存，HTML 不缓存。
+- `/llms.txt` 是首页的 `LLMS` 输出格式（`hugo.toml` 的 `[outputFormats.LLMS]`），模板在 `layouts/index.llms.txt`，每次构建按内容生成：摘要与站点说明只取 `hugo.toml` 的 `params`，页面链接取自内容，不手工编辑 `public/llms.txt`。新增、改名或删除路由后模板自动带入；所有页面 `<head>` 用 `rel="describedby"` 指向它。`scripts/check.py` 校验 H1、摘要、sitemap 覆盖、草稿与死链，失配即构建失败。
 - 不为一个效果引入构建链。Node 只作为检查工具（Lighthouse），不进运行时。
 
 ### 文档
