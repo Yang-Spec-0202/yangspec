@@ -58,3 +58,11 @@
 - 生产：`scripts/preview-check.sh https://yangspec.com` → 九路由 Performance 99–100 / Accessibility 100，LCP 0.81–1.82 s，CLS 0，TBT 0 ms；无 `Set-Cookie`，安全头齐全，第三方请求仅 Cloudflare Web Analytics beacon。
 - 回滚点：`4deb41a`（PR #22 合并前的 `main`）。
 - 异常：首次生产检查恰好与本机并发构建重叠，archives / about / contact 出现 Performance 85–88、TBT 460–570 ms；空闲后重跑九路由全部通过（上述数字为复测值），判断为本机 CPU 争用导致的测量波动，不是站点回归。
+
+### 2026-11-10 · 0038e51 · 自动生成的 /llms.txt
+
+- 改动：PR #24 给站点加 `/llms.txt`（llmstxt.org v2 格式）：由首页 `LLMS` 输出格式从 `layouts/index.llms.txt` 每次构建生成，含站点摘要、文档 / 文章 / 站点 / 订阅分区；不手工维护 `public/llms.txt`。首页 `<head>` 有 `rel="alternate" type="text/plain"`，所有可索引页面用 `rel="describedby"` 指向它，不进 sitemap。`CONSTRAINTS.md` 第 1 节新增第 12 条「机器可读入口」并在第 3 节写明生成方式；`check.py` 校验列表形状、sitemap 覆盖、describedby/alternate、XML 合法性与死链。PR #25（同批合并）补记了 `/docs/` 部署。
+- 检查：`scripts/check-record.sh --full` → 退出码 0；`check.py` 17 项 PASS（含 llms 检查；外链 4 个可达）+ `check-docs.py` 6 项 PASS，报告 `reports/check-20261110T191339.txt`。
+- 生产：`scripts/preview-check.sh https://yangspec.com` → 九路由 Performance 99–100 / Accessibility 100，LCP 0.78–1.06 s，CLS 0，TBT 0–16 ms；无 `Set-Cookie`，安全头齐全。`GET /llms.txt` → 200、`text/plain; charset=utf-8`、2142 B，与本地构建一致；sitemap 11 条不含它。
+- 回滚点：`64ef659`（PR #24 合并前）。
+- 异常：无。
