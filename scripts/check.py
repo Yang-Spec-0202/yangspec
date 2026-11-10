@@ -18,7 +18,8 @@
   11. 上一篇/下一篇链
   12. 文章最后更新渲染
   13. 文档栏目（总览、正文页数、不分页、sitemap、侧栏覆盖、上一节/下一节）
-  14. 外链状态（--external）
+  14. llms.txt（存在、H1/摘要、覆盖 sitemap、无草稿与死链）
+  15. 外链状态（--external）
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ import argparse
 import gzip
 import re
 import sys
+import xml.etree.ElementTree as ET
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
@@ -65,6 +67,10 @@ ANCHOR_RE = re.compile(r"<a\b[^>]*\bhref=\"([^\"]+)\"[^>]*>", re.I)
 POST_NAV_RE = re.compile(r"<nav[^>]*class=\"post-nav\"[^>]*>(.*?)</nav>", re.S)
 POST_UPDATED_RE = re.compile(r"<p[^>]*class=\"post-updated\"[^>]*>(.*?)</p>", re.S)
 TIME_DATE_RE = re.compile(r"<time[^>]*datetime=\"(\d{4}-\d{2}-\d{2})\"")
+# /llms.txt 里的 Markdown 链接；只取目标，不看链接文字。
+LLMS_LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+LLMS_BULLET_RE = re.compile(r"^- \[[^\]]*\]\([^)\s]+\)")
+LLMS_MAX_BYTES = 250_000
 
 # 站内文档：content/docs/ 生成 /docs/；仓库 docs/ 是维护者文档，不参与构建。
 DOCS_SOURCE_DIR = ROOT / "content" / "docs"
@@ -1066,6 +1072,149 @@ def check_docs_section(site: Path) -> None:
         )
 
 
+def load_site_title() -> str:
+    """hugo.toml 顶层的 title，用于校验 llms.txt 的 H1。"""
+    match = re.search(r'(?m)^title\s*=\s*"([^"]+)"', read_text(ROOT / "hugo.toml"))
+    return match.group(1) if match else ""
+
+
+def check_llms_layout(text: str) -> list[str]:
+    """H2 之后只允许 H2 标题与 markdown 链接列表项（llmstxt.org 的 file list）。"""
+    problems: list[str] = []
+    lines = text.splitlines()
+    start = next((index for index, line in enumerate(lines) if line.startswith("## ")), None)
+    if start is None:
+        problems.append("缺少 H2 分区（llmstxt.org 的 file list）")
+        return problems
+    for number, line in enumerate(lines[start:], start=start + 1):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("## "):
+            continue
+        if not stripped.startswith("- ["):
+            problems.append(f"第 {number} 行应为 markdown 链接列表项（`- [标题](URL)：说明`）：{stripped[:40]}")
+        elif not LLMS_BULLET_RE.match(stripped):
+            problems.append(f"第 {number} 行不是 `[标题](URL)` 链接：{stripped[:40]}")
+    return problems
+
+
+def page_has_link_rel(html: str, rel: str, needle: str) -> bool:
+    """页面 <head> 里是否有指定 link relation 指向 needle。"""
+    for tag in re.findall(r"<link\b[^>]*>", html, re.I):
+        if f'rel="{rel}"' in tag and needle in tag:
+            return True
+    return False
+
+
+def check_llms(site: Path) -> None:
+    """llms.txt：构建期生成、覆盖 sitemap 全部页面、无草稿与死链。"""
+    title = load_site_title()
+    path = site / "llms.txt"
+    if not path.is_file():
+        fail("缺少 llms.txt（home 的 LLMS 输出格式，见 layouts/index.llms.txt）")
+        return
+    raw = path.read_bytes()
+    if not raw:
+        fail("llms.txt 为空")
+        return
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as error:
+        fail(f"llms.txt 不是合法 UTF-8：{error}")
+        return
+
+    problems: list[str] = []
+    if len(raw) > LLMS_MAX_BYTES:
+        problems.append(f"体积 {len(raw)} 字节超过 {LLMS_MAX_BYTES}")
+    non_empty = [line.strip() for line in text.splitlines() if line.strip()]
+    if not non_empty or not non_empty[0].startswith("# "):
+        problems.append("第一行应为 `# 站点名`")
+    elif title and non_empty[0] != f"# {title}":
+        problems.append(f"H1 应为 `# {title}`，实际是 `{non_empty[0]}`")
+    if len(non_empty) < 2 or not non_empty[1].startswith("> "):
+        problems.append("第二段应为 `> 摘要`（llms.txt 的 blockquote 约定）")
+    problems.extend(check_llms_layout(text))
+
+    internal: set[str] = set()
+    dead: list[str] = []
+    for raw_url in LLMS_LINK_RE.findall(text):
+        parts = urlsplit(raw_url)
+        if parts.scheme in ("mailto", "tel"):
+            continue
+        if parts.scheme in ("http", "https"):
+            if parts.netloc and parts.netloc not in SITE_HOSTS:
+                continue
+            target = parts.path or "/"
+        elif parts.scheme:
+            continue
+        else:
+            target = parts.path or "/"
+        internal.add(target)
+        if target.endswith(".xml"):
+            xml_path = site / target.lstrip("/")
+            if not xml_path.is_file():
+                dead.append(raw_url)
+            else:
+                try:
+                    ET.fromstring(xml_path.read_bytes())
+                except ET.ParseError as error:
+                    problems.append(f"{target} 不是合法 XML：{error}")
+        elif internal_target(site, target) is None:
+            dead.append(raw_url)
+    if dead:
+        problems.append("有死链：" + ", ".join(sorted(set(dead))[:8]))
+
+    sitemap_paths: set[str] = set()
+    sitemap = site / "sitemap.xml"
+    if sitemap.is_file():
+        sitemap_paths = {
+            urlsplit(url).path or "/"
+            for url in re.findall(r"<loc>(.*?)</loc>", read_text(sitemap))
+        }
+    if "/llms.txt" in sitemap_paths:
+        problems.append("不应出现在 sitemap")
+    missing = sitemap_paths - internal
+    if missing:
+        problems.append("漏掉 sitemap 页面：" + ", ".join(sorted(missing)))
+
+    built = built_posts(site)
+    listed_posts = {
+        url for url in internal if url.startswith("/posts/") and url.endswith("/") and url != "/posts/"
+    }
+    extra = listed_posts - set(built)
+    if extra:
+        problems.append("列出了未构建的文章：" + ", ".join(sorted(extra)))
+    missing_posts = set(built) - internal
+    if missing_posts:
+        problems.append("漏掉文章：" + ", ".join(sorted(missing_posts)))
+    docs = built_docs(site)
+    missing_docs = (set(docs) | {"/docs/"}) - internal
+    if missing_docs:
+        problems.append("漏掉文档入口：" + ", ".join(sorted(missing_docs)))
+
+    # 发现入口：每个可索引页面用 rel="describedby" 指向 llms.txt；首页另有 alternate。
+    missing_rel: list[str] = []
+    for page_path in sorted(sitemap_paths):
+        page = internal_target(site, page_path)
+        if page is None or page.suffix != ".html":
+            continue
+        if not page_has_link_rel(read_text(page), "describedby", "llms.txt"):
+            missing_rel.append(page_path)
+    if missing_rel:
+        problems.append("这些页面缺少 rel=\"describedby\" 指向 llms.txt：" + ", ".join(missing_rel))
+    home = site / "index.html"
+    if home.is_file() and not page_has_link_rel(read_text(home), "alternate", "llms.txt"):
+        problems.append("首页缺少 rel=\"alternate\" 指向 llms.txt")
+
+    for problem in problems:
+        fail("llms.txt：" + problem)
+    if not problems:
+        ok(
+            f"llms.txt 覆盖全部 {len(sitemap_paths)} 个可索引页面"
+            f"（文章 {len(built)} 篇、文档 {len(docs)} 篇），H2 为链接列表、"
+            "页面有 describedby、无死链、不进 sitemap"
+        )
+
+
 def check_weight(site: Path, pages: dict[Path, PageParser]) -> None:
     heaviest = (0, "")
     js_total: dict[Path, int] = {}
@@ -1163,6 +1312,7 @@ def main() -> int:
     check_post_navigation(site, built, resolved)
     check_post_updated(site, built, resolved)
     check_docs_section(site)
+    check_llms(site)
     check_weight(site, pages)
     if args.external:
         check_external(external)
