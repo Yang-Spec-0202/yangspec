@@ -50,3 +50,11 @@
 - 生产：`scripts/preview-check.sh https://yangspec.com` → 七路由 Performance 99–100 / Accessibility 100，LCP 0.82–1.16 s，CLS 0，TBT 0 ms；无 `Set-Cookie`，安全头齐全，第三方请求仅 Cloudflare Web Analytics beacon。
 - 回滚点：`8bdbb5f`（PR #18 合并前）。
 - 异常：无。一次生产检查进程因本机负载未在预期时间内结束，重跑后通过，不影响站点。
+
+### 2026-11-09 · a1244e8 · 站内文档栏目 /docs/
+
+- 改动：PR #22 新增站内文档栏目：`/docs/` 总览 + 3 篇正文（怎么读这个站、作业批改项目 exam-grading、纠错与反馈）；`layouts/docs/` 三栏模板（侧栏 / 正文 / 页内目录）、移动端 `<details>` 折叠、上一节/下一节；主导航加「文档」并把窄屏两行断点从 380px 调整到 430px；`check.py` 增加文档栏目检查，`check-docs.py` 改为「维护者 docs/ 未进入构建」，`preview-check.sh` 九路由；ADR 0005。
+- 检查：`scripts/check-record.sh --full` → 退出码 0；`check.py` 16 项 PASS（含文档栏目检查；外链 4 个可达）+ `check-docs.py` 6 项 PASS，报告 `reports/check-20261109T200335.txt`。
+- 生产：`scripts/preview-check.sh https://yangspec.com` → 九路由 Performance 99–100 / Accessibility 100，LCP 0.81–1.82 s，CLS 0，TBT 0 ms；无 `Set-Cookie`，安全头齐全，第三方请求仅 Cloudflare Web Analytics beacon。
+- 回滚点：`4deb41a`（PR #22 合并前的 `main`）。
+- 异常：首次生产检查恰好与本机并发构建重叠，archives / about / contact 出现 Performance 85–88、TBT 460–570 ms；空闲后重跑九路由全部通过（上述数字为复测值），判断为本机 CPU 争用导致的测量波动，不是站点回归。
