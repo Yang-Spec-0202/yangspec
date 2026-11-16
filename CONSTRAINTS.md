@@ -87,26 +87,27 @@
 - 日志只追加，不改写历史；回滚另起一条，写原因、影响范围与恢复时间。
 - 日志不得出现邮箱、IP、Cookie、Token、Cloudflare 账号信息；Cloudflare 访问日志只在控制台查阅，月度复核不导出个人数据。
 
-## 5. 基线（2026-11-02 复测）
+## 5. 基线（2026-11-10 复测）
 
 阈值先按现状记录，只要求“不变差”；等稳定后再收紧。工具：Hugo 0.167.0 extended、Chrome headless、Lighthouse 移动端默认节流。
 
 | 指标 | 当前值 | 方向 |
 |------|--------|------|
-| 页面数 | 12 个 Hugo 页面，8 个 HTML（7 个可索引路由 + 404），另有 `/posts/page/1/` 跳转别名 | 不得无故减少 |
-| 构建耗时 | 约 30–60 ms | 不得明显变慢 |
-| HTML（gzip） | 首页 2.9 KB / 文章列表 2.4 KB / 文章 3.2 KB / 归档 2.3 KB / 关于 3.1 KB / 联系 2.7 KB / 隐私 3.3 KB | 单页不得增长 > 10% |
-| CSS（gzip） | 7.2 KB | 不得增长 > 10% |
-| 首方 JS（gzip） | ≈0.2–0.3 KB | 不得增长 |
-| Lighthouse 移动端（localhost） | 七条路由均 100 / 100 / 100 / 100；LCP 0.63–0.78 s；CLS 0；TBT 0 ms | Performance 不得跌破 90 |
-| Lighthouse 移动端（线上） | 2026-11-02：七条路由 Performance 97–100（最低 `/posts/` 97），Accessibility 100，LCP 0.83–1.11 s，CLS 0 | 同上 |
-| 站内链接 | 0 断链（8 个 HTML，含 `/posts/page/1/` 别名） | 必须保持 0 |
-| 外链 | 3 个，均 200 | 失效数只降不升 |
+| 页面数 | 17 个 Hugo 页面，13 个 HTML 文件（11 个可索引路由 + 404 + `/posts/page/1/` 跳转别名） | 不得无故减少 |
+| 构建耗时 | 约 30–90 ms | 不得明显变慢 |
+| HTML（gzip） | 首页 3.0 KB / 文章列表 2.5 KB / 文章 3.3 KB / 归档 2.4 KB / 文档总览 3.0 KB / 文档正文 3.6–5.0 KB / 关于 3.2 KB / 联系 2.8 KB / 隐私 3.4 KB | 单页不得增长 > 10% |
+| CSS（gzip） | 7.8 KB | 不得增长 > 10% |
+| 首方 JS（gzip） | ≈0.3 KB | 不得增长 |
+| 机器可读入口 | `llms.txt` 2.1 KB（gzip 1.2 KB） | 不得增长 > 10% |
+| Lighthouse 移动端（localhost） | 2026-11-10 复测时宿主负载异常（load ≈5，非本站进程），localhost 单次 TBT 跳动到数秒、结果不可用；本次不取该组数字，空闲时用 `scripts/preview-check.sh http://127.0.0.1:<port>` 复核 | Performance 不得跌破 90（以线上九路由为准） |
+| Lighthouse 移动端（线上） | 2026-11-10：九条路由 Performance 99–100（最低 `/posts/` 99），Accessibility 100，LCP 0.78–1.06 s，CLS 0，TBT 0–16 ms | 同上 |
+| 站内链接 | 0 断链（13 个页面，含 `/posts/page/1/` 别名） | 必须保持 0 |
+| 外链 | 4 个，均 200 | 失效数只降不升 |
 | 正文对比度 | 5.7:1 – 12.6:1（深浅两套） | 正文 ≥ 4.5:1 |
 | 站点 `Set-Cookie` | 线上 HEAD 未见 | 必须保持 0 |
 | 第三方请求 | 仅 Cloudflare Web Analytics beacon（边缘注入，不写 Cookie；2026-10-30 启用） | 不得新增其他第三方 |
 
-Lighthouse 数字是单次实验室结果（localhost 与线上各一组），不等于真实用户字段数据；只用作回归门槛。
+Lighthouse 数字是单次实验室结果（localhost 与线上各一组），不等于真实用户字段数据；只用作回归门槛。localhost 这组依赖宿主空闲程度：2026-11-10 复测时本机负载约 5（非本站进程），九条路由 TBT 全部跳到数秒、Performance 63–67，属测量环境问题；该次不写入基线，门槛以线上九路由为准。
 
 ## 6. 待补齐与已知偏差
 
